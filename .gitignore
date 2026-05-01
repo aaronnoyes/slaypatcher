@@ -1,3 +1,7 @@
 sts2-extract/**
 sts2-recover/**
 **/*.pck
+/godot-editor
+/spine-godot-templates-4.2-4.6.1-stable-mono.tpz
+/godot-editor-linux-mono.zip
+/spine-godot-templates-4.2-4.5.1-stable-mono.tpz
