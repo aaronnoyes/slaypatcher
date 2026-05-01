@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PRESET_NAME="Linux/X11 arm64"
+PRESET_NAME="Linux"
 OUTPUT_PCK="./export/game.pck"
 
 EDITOR_ZIP="godot-editor-linux-mono.zip"
