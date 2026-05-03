@@ -1,6 +1,8 @@
 # slaypatcher
 
-Tools for running Slay the Spire 2 on arm64 embedded Linux.
+Tools for patching Slay the Spire 2 to run on arm64 embedded Linux.
+
+Right now this is quite slow and music does not work.
 
 ## Requirements
 - Python 3
@@ -9,6 +11,7 @@ Tools for running Slay the Spire 2 on arm64 embedded Linux.
 - gcc-aarch64-linux-gnu
 - dotnet 9.0.303
   - You should be able to modify global.json in the recovered project to use a different versoin
+  - If you don't have this then it is hard to figure out what's broken when it tries to build
 
 ### Downloaded via scripts
 - [Spine Editor with C+ support](https://spine-godot.s3.eu-central-1.amazonaws.com/4.2/4.5.1-stable/godot-editor-linux-mono.zip)
@@ -23,4 +26,5 @@ Tools for running Slay the Spire 2 on arm64 embedded Linux.
 - The exported game will be in `./exports/Linux-ARM64/`
 
 ## Running
-- Copy the exported game folder and the `Slay\ the\ Spire\ 2.sh` file to the appropriate folders in PortMaster
+- Copy the contents of `./exports/Linux-ARM64` to `/mnt/mmc/ports`
+- Copy `Slay\ the\ Spire\ 2.sh` file to `/mnt/mmc/roms/ports`
