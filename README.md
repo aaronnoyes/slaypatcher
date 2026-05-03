@@ -2,6 +2,8 @@
 
 Tools for patching Slay the Spire 2 to run on arm64 embedded Linux.
 
+This is meant to be run on Linux, I don't have a Windows PC to test on. Feel free to open PRs.
+
 Right now this is quite slow and music does not work.
 
 ## Requirements
