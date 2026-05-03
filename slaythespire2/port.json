@@ -1,0 +1,41 @@
+{
+  "version": 4,
+  "name": "slaythespire2.zip",
+  "items": [
+    "Slay the Spire 2.sh",
+    "slaythespire2"
+  ],
+  "items_opt": [],
+  "attr": {
+    "title": "Slay the Spire 2",
+    "porter": [
+      "frankbalogna"
+    ],
+    "desc": "Slay the Spire 2",
+    "desc_md": null,
+    "inst": "This does not currently work on device",
+    "inst_md": null,
+    "genres": [
+      "other"
+    ],
+    "image": null,
+    "rtr": false,
+    "exp": false,
+    "runtime": [
+      "weston_pkg_0.2.squashfs"
+    ],
+    "store": [
+      {
+        "name": "Steam",
+        "gameurl": "https://store.steampowered.com/app/2868840/Slay_the_Spire_2/",
+        "developerurl": ""
+      }
+    ],
+    "availability": "paid",
+    "reqs": [],
+    "arch": [
+      "aarch64"
+    ],
+    "min_glibc": ""
+  }
+}
