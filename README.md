@@ -28,5 +28,6 @@ Right now this is quite slow and music does not work.
 - The exported game will be in `./exports/Linux-ARM64/`
 
 ## Running
-- Copy the contents of `./exports/Linux-ARM64` to `/mnt/mmc/ports`
+- Copy the contents of `./exports/Linux-ARM64` to `./slaythespire2/slaythespire2` alongside the default settings config
+- Copy `./slaythespire2` to `/mnt/mmc/ports` on your device
 - Copy `Slay\ the\ Spire\ 2.sh` file to `/mnt/mmc/roms/ports`
