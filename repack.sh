@@ -133,7 +133,7 @@ else
     echo already there ig
 fi
 
-FINAL_BIN="$(realpath "$PRESET_OUT")/game"
+FINAL_BIN="$(realpath "$PRESET_OUT")/sts2"
 
 if [[ "$FORCE" -eq 1 || ! -f "$FINAL_BIN" ]]; then
     echo "Exporting $PRESET_NAME"

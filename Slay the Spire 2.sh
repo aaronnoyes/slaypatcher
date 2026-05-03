@@ -16,9 +16,9 @@ source $controlfolder/control.txt
 [ -f "${controlfolder}/mod_${CFW_NAME}.txt" ] && source "${controlfolder}/mod_${CFW_NAME}.txt"
 get_controls
 
-GAMEDIR=/$directory/Roms/PORTS/slaythespire2
-godot_executable="godot45.mono.aarch64"
-pck_filename="sts2-compat.pck"
+GAMEDIR=/$directory/ports/slaythespire2
+godot_executable="spinegodot45"
+pck_filename="sts2.pck"
 
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
 
@@ -45,7 +45,6 @@ cd $GAMEDIR
 $GPTOKEYB2 "$godot_executable" -x &
 
 # Start Westonpack and Godot
-#$ESUDO env $weston_dir/westonwrap.sh headless noop kiosk crusty_x11egl echo @@@ && env && echo @@@
 $ESUDO env CRUSTY_BLOCK_INPUT=1 $weston_dir/westonwrap.sh headless noop kiosk crusty_x11egl \
 XDG_DATA_HOME=$CONFDIR $GAMEDIR/$godot_executable \
 --resolution ${DISPLAY_WIDTH}x${DISPLAY_HEIGHT} -f \
