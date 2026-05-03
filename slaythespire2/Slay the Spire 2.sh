@@ -17,7 +17,7 @@ source $controlfolder/control.txt
 get_controls
 
 GAMEDIR=/$directory/ports/slaythespire2
-godot_executable="spinegodot45"
+godot_executable="sts2"
 pck_filename="sts2.pck"
 
 > "$GAMEDIR/log.txt" && exec > >(tee "$GAMEDIR/log.txt") 2>&1
