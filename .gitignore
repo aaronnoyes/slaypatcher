@@ -9,3 +9,8 @@ sts2-recover/**
 /GDRE_tools-v2.5.0-beta.5-linux.zip
 /gdre-tools
 /run.sh
+/slaythespire2/slaythespire2/crashpad_handler
+/slaythespire2/slaythespire2/data_sts2_linuxbsd_arm64
+/slaythespire2/slaythespire2/libsentry.linux.release.arm64.so
+/slaythespire2/slaythespire2/libspine_godot.linux.template_release.arm64.so
+/slaythespire2/slaythespire2/sts2

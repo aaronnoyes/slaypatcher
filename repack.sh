@@ -5,7 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 PCK_FILE="${1:?Usage: $0 <pck_file> [preset] [output_dir]}"
 PRESET_NAME="${2:-Linux ARM64}"
-OUTPUT_DIR="${3:-$SCRIPT_DIR/export}"
+OUTPUT_DIR="$(realpath "${3:-$SCRIPT_DIR/slaythespire2/slaythespire2}")"
 
 FORCE="${FORCE:-0}"
 
@@ -123,17 +123,9 @@ else
     echo "Import skipped"
 fi
 
-PRESET_SLUG="${PRESET_NAME// /-}"
-PRESET_OUT="$OUTPUT_DIR/$PRESET_SLUG"
+mkdir -p "$OUTPUT_DIR"
 
-if [[ ! -d "$PRESET_OUT" ]]; then
-    echo making $PRESET_OUT
-    mkdir -p "$PRESET_OUT"
-else
-    echo already there ig
-fi
-
-FINAL_BIN="$(realpath "$PRESET_OUT")/sts2"
+FINAL_BIN="$OUTPUT_DIR/sts2"
 
 if [[ "$FORCE" -eq 1 || ! -f "$FINAL_BIN" ]]; then
     echo "Exporting $PRESET_NAME"
