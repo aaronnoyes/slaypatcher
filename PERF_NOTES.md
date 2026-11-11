@@ -5,6 +5,32 @@ CSV data comes from SlayPerf (`mods/slayperf/logs/`). Compare runs with `tools/p
 
 Device: H700 (4x Cortex-A53, Mali-G31 MP2), muOS, **973 MB RAM, no swap**. Display 640x480.
 
+## 2026-11-10: Spine throttle (lowres + spine_hz=15)
+
+| | lowres | lowres + spine15 |
+|---|---|---|
+| hitches (>50 ms) per minute | ~73 | ~61 |
+| 17-18 FPS dips in combat | recurring | gone; steady 30 with single 50-135 ms frames |
+| median draw calls | 335 | 253 |
+| GC pause total | 2.9 s / 6.4 min | 2.4 s / 3.6 min |
+
+- Spine CPU skinning caused the sustained dips. Throttling to 15 Hz removed them.
+- The first throttle version had two bugs: float slack (2 x 33.33 ms < 1/15 s, so it really ran at
+  10 Hz) and every sprite updating on the same frame. Fixed with a 4 ms slack and golden-ratio phase
+  offsets. Verified on PC: 3 sprites at exactly 45 updates/s.
+- About half the remaining hitch seconds coincide with a GC pause over 5 ms. The CPU also falls to
+  288 MHz between bursts under `schedutil`, and temperature reached 75 C.
+- Next runs: `SLAY_DOTNET_TWEAKS=1` (fewer gen0 GCs), then `SLAY_GOVERNOR=performance`.
+- Menu+Start didn't quit because the launcher passed gptokeyb2 `-x` (xbox360 emulation), not a quit
+  mode, and the game ignores SIGTERM. Now passes `-X` (quit via kill). Not yet confirmed on device.
+
+### Game version caveat
+This port is built from a months-old game build. The lowres PCK overrides `.ctex` files by path, and
+Godot names imported textures by *source path*, not content. A lowres PCK built from an old version
+would quietly replace updated art with old art (and old logical sizes). Rebuild it whenever the game
+PCK changes. The SlayPerf patches are each wrapped in try/catch, and the node-level knobs don't
+depend on game internals.
+
 ## 2026-11-10: first measured runs
 
 Same route each run: boot, main menu, continue the Ironclad run, first combat.
@@ -45,5 +71,5 @@ Same route each run: boot, main menu, continue the Ironclad run, first combat.
   so no SD card swapping.
 
 ### Open issues
-- Menu+Start (gptokeyb2 kill combo) doesn't quit the game; had to kill it over SSH.
+- Menu+Start quit: fixed in the launcher (`-X`), needs confirming on device.
 - Audio: FMOD has no arm64 build, so there's still no music.

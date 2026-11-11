@@ -171,6 +171,7 @@ internal sealed class PerfMonitor
     {
         var prev = SysStats.Read();
         double prevGcPause = GC.GetTotalPauseDuration().TotalMilliseconds;
+        long prevSpine = 0;
         int intervalMs = (int)(_cfg.SampleInterval * 1000);
 
         while (true)
@@ -223,12 +224,13 @@ internal sealed class PerfMonitor
                     cur.RssKb / 1024.0, cur.ProcSwapKb / 1024.0, cur.MemAvailKb / 1024.0, swapUsed,
                     cur.SwapIn - prev.SwapIn, cur.SwapOut - prev.SwapOut, cur.MajFault - prev.MajFault,
                     procCpu, busy, iowait, Scaled(cur.CpuKhz, 1e3), Scaled(cur.GpuHz, 1e6), Scaled(cur.TempMilliC, 1e3),
-                    _spine?.Count ?? 0, _spine?.UpdatesLastFrame ?? 0, ev.ToString(),
+                    _spine?.Count ?? 0, (_spine?.TotalUpdates ?? 0) - prevSpine, ev.ToString(),
                 };
                 _csv.WriteLine(string.Join(",", row.Select(Fmt)));
 
                 prev = cur;
                 prevGcPause = gcPause;
+                prevSpine = _spine?.TotalUpdates ?? 0;
             }
             catch (Exception ex)
             {

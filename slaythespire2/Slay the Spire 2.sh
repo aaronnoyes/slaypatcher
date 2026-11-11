@@ -80,7 +80,9 @@ if [ -n "${SLAY_GOVERNOR:-}" ] && [ -w "$GOV" -o -n "$ESUDO" ]; then
   echo "$SLAY_GOVERNOR" | $ESUDO tee "$GOV" >/dev/null
 fi
 
-$GPTOKEYB2 "$godot_executable" -x &
+# -x: xbox360 controller emulation. -X: quit via kill. The game ignores SIGTERM, so the
+# default (polite) quit on the hotkey combo does nothing.
+$GPTOKEYB2 "$godot_executable" -x -X &
 
 # Start Westonpack and Godot
 # Note: don't pass "--force-sentry off". The game only checks whether the flag is present,

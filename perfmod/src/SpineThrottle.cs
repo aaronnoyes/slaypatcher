@@ -24,13 +24,18 @@ internal sealed class SpineThrottle
         public double Acc;
     }
 
+    // Frame deltas are never exact (2 x 33.33 ms < 1/15 s), so without a little slack a 15 Hz
+    // throttle at 30 FPS waits a third frame and actually runs at 10 Hz.
+    private const double Slack = 0.004;
+
     private readonly double _interval;
     private readonly List<Entry> _sprites = new();
     private readonly HashSet<ulong> _ids = new();
-    private readonly Random _rng = new(1234);
+    private int _registered;
 
     public int Count => _sprites.Count;
     public int UpdatesLastFrame { get; private set; }
+    public long TotalUpdates { get; private set; }
 
     public SpineThrottle(int hz) => _interval = 1.0 / hz;
 
@@ -39,7 +44,10 @@ internal sealed class SpineThrottle
         ulong id = node.GetInstanceId();
         if (!_ids.Add(id)) return;
         node.Call(SetUpdateMode, UpdateModeManual);
-        _sprites.Add(new Entry { Node = node, Id = id, Acc = _rng.NextDouble() * _interval });
+        // Golden-ratio phase offsets spread sprites evenly across frames for any rate and count,
+        // so they don't all skin on the same frame.
+        double phase = (_registered++ * 0.6180339887) % 1.0;
+        _sprites.Add(new Entry { Node = node, Id = id, Acc = phase * _interval });
     }
 
     public void Tick(double delta)
@@ -56,11 +64,12 @@ internal sealed class SpineThrottle
             }
             if (!e.Node.IsInsideTree()) continue;
             e.Acc += delta;
-            if (e.Acc < _interval) continue;
+            if (e.Acc < _interval - Slack) continue;
             e.Node.Call(UpdateSkeleton, (float)e.Acc);
             e.Acc = 0;
             updates++;
         }
         UpdatesLastFrame = updates;
+        TotalUpdates += updates;
     }
 }
