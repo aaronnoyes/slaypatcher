@@ -80,9 +80,28 @@ if [ -n "${SLAY_GOVERNOR:-}" ] && [ -w "$GOV" -o -n "$ESUDO" ]; then
   echo "$SLAY_GOVERNOR" | $ESUDO tee "$GOV" >/dev/null
 fi
 
-# -x: xbox360 controller emulation. -X: quit via kill. The game ignores SIGTERM, so the
-# default (polite) quit on the hotkey combo does nothing.
+# -x: xbox360 controller emulation (the game reads input from this virtual pad).
+# -X: exit on the hotkey (Select+Start).
 $GPTOKEYB2 "$godot_executable" -x -X &
+gptokeyb_pid=$!
+
+# westonwrap only checks gptokeyb at startup, so after the hotkey nothing stops the game:
+# it keeps running with no input device and looks frozen. Watch gptokeyb ourselves and send
+# the game SIGTERM when it exits. SlayPerf turns that into a clean, saving quit (the game
+# alone ignores SIGTERM), so escalate to SIGKILL if it's still around after 10 s.
+signal_game() {
+  for p in /proc/[0-9]*; do
+    [ "$(cat "$p/comm" 2>/dev/null)" = "$godot_executable" ] && $ESUDO kill "-$1" "${p#/proc/}" 2>/dev/null
+  done
+}
+(
+  while kill -0 "$gptokeyb_pid" 2>/dev/null; do sleep 1; done
+  echo "gptokeyb exited (quit hotkey), stopping $godot_executable"
+  signal_game TERM
+  sleep 10
+  signal_game KILL
+) &
+quit_watcher_pid=$!
 
 # Start Westonpack and Godot
 # Note: don't pass "--force-sentry off". The game only checks whether the flag is present,
@@ -92,6 +111,10 @@ XDG_DATA_HOME=$CONFDIR $game_env $GAMEDIR/$godot_executable \
 --resolution ${DISPLAY_WIDTH}x${DISPLAY_HEIGHT} -f \
 --rendering-driver opengl3_es --audio-driver ALSA --main-pack "$GAMEDIR/$pck_filename" \
 --force-steam off $extra_args
+
+# Game is gone: stop the watcher (it would otherwise fire when gptokeyb is torn down).
+kill "$quit_watcher_pid" 2>/dev/null
+kill "$gptokeyb_pid" 2>/dev/null
 
 [ -n "${old_governor:-}" ] && echo "$old_governor" | $ESUDO tee "$GOV" >/dev/null
 

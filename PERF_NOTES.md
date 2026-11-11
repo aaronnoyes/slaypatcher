@@ -5,6 +5,28 @@ CSV data comes from SlayPerf (`mods/slayperf/logs/`). Compare runs with `tools/p
 
 Device: H700 (4x Cortex-A53, Mali-G31 MP2), muOS, **973 MB RAM, no swap**. Display 640x480.
 
+## 2026-11-10: fixed Spine throttle + .NET GC tweak (lowres + spine_hz=15 + SLAY_DOTNET_TWEAKS=1)
+
+Combat period only (t > 60 s). The spine15fix-gc sample is short (~2 min).
+
+| | spine15 | spine15fix-gc |
+|---|---|---|
+| hitches (>50 ms) per minute | 59 | 19 |
+| frames >100 ms per minute | 5.8 | 3.6 |
+| GC pause per minute | 572 ms | 138 ms |
+| gen0 GCs (session) | 172 | 10 |
+
+- The GC tweak works as intended: gen0 collections nearly disappear and small hitches drop by 2/3.
+- Subjectively it "felt the same". The noticeable stutter is probably the >100 ms frames, which
+  fell much less. Those are the next target. Candidates: first-use shader compiles that are still
+  uncached, the schedutil governor ramping up from 288 MHz, and per-turn work in game code.
+- **Quit hotkey, properly diagnosed:** the hotkey is Select+Start (Menu+Start does nothing). gptokeyb2
+  with `-X` exits on it, but westonwrap only checks gptokeyb at *startup*, so nothing stopped the game.
+  It kept running with no input device ("frozen, animations still playing"). The launcher now watches
+  gptokeyb and sends the game SIGTERM when it exits, escalating to SIGKILL after 10 s. Verified on
+  device: a plain SIGTERM makes SlayPerf run `NGame.Quit()` and progress is saved. The watcher was
+  tested on the device's shell with stand-in processes. The full hotkey path still needs a real try.
+
 ## 2026-11-10: Spine throttle (lowres + spine_hz=15)
 
 | | lowres | lowres + spine15 |
@@ -25,7 +47,8 @@ Device: H700 (4x Cortex-A53, Mali-G31 MP2), muOS, **973 MB RAM, no swap**. Displ
   and never exits). gptokeyb2 sent it, then exited itself, taking its virtual controller with it, so
   the game kept running with no input and looked frozen. SlayPerf now handles SIGTERM/SIGINT by
   calling the game's own `NGame.Quit()` (saves settings and progress), with a SIGKILL fallback after 5 s.
-  On PC, SIGTERM at the main menu now exits in 1.2 s. Before, it never exited.
+  On PC, SIGTERM at the main menu now exits in 1.2 s. Before, it never exited. (This alone wasn't enough:
+  see the next entry.)
 
 ### Game version caveat
 This port is built from a months-old game build. The lowres PCK overrides `.ctex` files by path, and
@@ -74,5 +97,5 @@ Same route each run: boot, main menu, continue the Ironclad run, first combat.
   so no SD card swapping.
 
 ### Open issues
-- Menu+Start quit: fixed via SlayPerf's SIGTERM handler, needs confirming on device.
+- Select+Start quit: launcher watcher + SlayPerf SIGTERM handler, needs one real try on device.
 - Audio: FMOD has no arm64 build, so there's still no music.
