@@ -15,10 +15,10 @@ Active mods: `slayperf` + `slaylowres` (scale 0.5). `slaytiny` (diagnostic) is p
 over 100 ms. The 100 ms+ frames are the stutter you notice. First-time effects still freeze 2-10 s once
 per install (shader compile, then cached). Select+Start quit is confirmed on device (2026-11-11).
 
-**Before merging `perf-work`, still to test** (one change per run, in this order):
+**Deferred (merged `perf-work` on 2026-11-11 without these; next up after audio):**
 1. A longer `gov-perf2` session (with the Spine phase fix) on a character you've already played, to
    confirm the governor and get per-minute numbers that compare with earlier runs.
-2. Startup warm-up: (a) preload the ~21 assets the game loads synchronously mid-combat ("Asset not
+2. **Startup warm-up (planned, not started):** (a) preload the ~21 assets the game loads synchronously mid-combat ("Asset not
    cached": power icons, `card.tscn`, `grid_card_holder.tscn`, `vfx_debuff_applied`/`vfx_buff_applied`...),
    and (b) instance VFX scenes off-screen once so their shaders compile during loading, not mid-fight.
 3. `particles=half` and `preload_vfx=false` haven't been measured on device yet. On PC,
