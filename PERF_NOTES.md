@@ -24,7 +24,8 @@ per install (shader compile, then cached). Select+Start quit is confirmed on dev
 3. `particles=half` and `preload_vfx=false` haven't been measured on device yet. On PC,
    `preload_vfx=false` cut the "Common" preload from 6.8 s to 0.5 s.
 4. Updating to a current game build means a full re-port (repack.sh) **and** rebuilding the
-   low-res PCK (see the version caveat below).
+   low-res PCK (see the version caveat below). The tested build is pinned in `game-version.json`.
+   Snapshot first (`tools/snapshot.sh save`) so it can be restored.
 
 **Tooling notes for picking this back up:** `./deploy.sh pull` then `tools/perfreport.py` on
 `device-logs/**/*.csv`. muOS SSH is `root`/`root`, and device paths are as above. For live viewing,

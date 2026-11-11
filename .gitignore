@@ -26,3 +26,6 @@ sts2-recover/**
 # Native libraries in the port folder: FMOD (proprietary), Spine, Sentry. Built or copied, never committed.
 /slaythespire2/slaythespire2/*.so
 /slaythespire2/slaythespire2/*.so.*
+# Local snapshots / downloaded game builds (contain game data: never commit)
+/snapshots
+/game-builds

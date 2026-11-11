@@ -175,6 +175,25 @@ it was turning Sentry on in debug mode, which logged and uploaded every warning.
 The x86_64 export runs the same mods. Put them in `export/Linux-x86_64/mods/`, enable mods in
 `settings.save` (`"mod_settings": {"mods_enabled": true}`) and run `./game --force-steam off`.
 
+## Game versions
+The port is built from one specific game build, recorded in [`game-version.json`](game-version.json)
+together with checksums of the built port. Currently that's the Early Access main build recovered on
+2026-05-02 (newest bundled patch notes: 2026-04-15). Newer builds (e.g. v0.107.1) haven't been tried.
+
+- `repack.sh` prints the input PCK's version (from Steam's `release_info.json`). After a recovery it
+  records it in `sts2-recover/.slaypatcher-source-release.json`, and it warns when you build from a
+  PCK whose version differs from the recovered project.
+- **Before moving to a new game build, save a snapshot.** `tools/snapshot.sh save` archives the
+  recovered project and the built port (~5 GB compressed) into `snapshots/` (local, gitignored).
+  `tools/snapshot.sh restore <name>` brings back exactly what was tested, without needing Steam.
+- **Old builds from Steam:** `tools/fetch-game-build.sh <manifest-id>` downloads a specific build
+  of depot 2868843 with your own account (DepotDownloader, or prints the `download_depot` command
+  for Steam's built-in console). Manifest IDs per date are listed at
+  https://steamdb.info/depot/2868843/manifests/. The tested build's ID still needs looking up and
+  adding to `game-version.json`, after which `tools/fetch-game-build.sh tested` works.
+- When moving to a new build, also rebuild the low-res PCK and re-run the FMOD build, re-test, then
+  update `game-version.json`.
+
 ## Licensing
 This repo only contains build scripts, tooling and the SlayPerf source. Nothing from the game, FMOD
 or other proprietary SDKs is committed.
@@ -190,5 +209,5 @@ or other proprietary SDKs is committed.
 - **Godot** export templates and editor binaries are downloaded at build time (MIT).
 
 A built port folder (`slaythespire2/slaythespire2/` with `sts2.pck`, FMOD libraries and the
-generated low-res PCK) contains Mega Crit and Firelight material. Keep it for your own device and
+generated low-res PCK), `snapshots/` and `game-builds/` contain Mega Crit and Firelight material. Keep it for your own device and
 **don't redistribute it** (that includes zipping it per `port.json`). Share the scripts instead.

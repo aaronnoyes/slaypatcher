@@ -3,6 +3,10 @@
 Ports Slay the Spire 2 (Godot 4.5.1 + C#/.NET 9 + Spine) to arm64 handhelds via PortMaster, and
 makes it run acceptably on an H700 (4x A53, Mali-G31, 973 MB RAM, **no swap**, 640x480).
 
+**Game build:** pinned. See `game-version.json` (tested build + port checksums) and README "Game versions".
+Never re-recover (`FORCE=1` / deleting `sts2-recover/`) without `tools/snapshot.sh save` first and
+the user's go-ahead.
+
 **Read first:** `PERF_NOTES.md` ("Current state" at the top) for where the performance work stands
 and what to test next. `README.md` has user-facing usage.
 
@@ -19,6 +23,8 @@ and what to test next. `README.md` has user-facing usage.
 - `perfmod/`: **SlayPerf** C# mod (DLL, loaded by the game's own mod loader). CSV + hitch logging,
   perf knobs, SIGTERM-to-clean-quit, save-profile patch. `perfmod/build.sh` builds it into `mods/slayperf/`.
 - `tools/lowres/lowres.gd` + `tools/make-lowres.sh`: builds `mods/slaylowres/` (texture override PCK).
+- `tools/snapshot.sh`: local snapshots (save/list/restore) of the recovered project + built port.
+  `tools/fetch-game-build.sh`: download a specific Steam manifest of depot 2868843 (user's account).
 - `tools/perfreport.py`: compares SlayPerf CSVs side by side. `tools/fb2png.py`: framebuffer screenshots.
 - `tools/build-fmod-arm64.sh`: cross-builds fmod-gdextension 6.1.0 for Linux arm64 against the FMOD
   2.03.06 Linux SDK (user-supplied, needs an fmod.com login; never fetch it from elsewhere) and adds

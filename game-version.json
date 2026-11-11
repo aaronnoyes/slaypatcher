@@ -1,0 +1,35 @@
+{
+  "_comment": "The Slay the Spire 2 build this port was last built from and tested on device. Update whenever the port moves to a new game build. See README 'Game versions'.",
+  "tested": {
+    "label": "Early Access main branch, recovered 2026-05-02",
+    "recovered_on": "2026-05-02",
+    "newest_bundled_patch_notes": "2026-04-15",
+    "steam": {
+      "app_id": 2868840,
+      "depot_id": 2868843,
+      "manifest_id": null,
+      "_manifest_note": "Not recorded at the time. Look it up at https://steamdb.info/depot/2868843/manifests/ (the manifest that was live on 2026-05-02) and fill it in; tools/fetch-game-build.sh can then download that exact build."
+    },
+    "engine": "Godot 4.5.1 mono (bytecode 4.5.0-stable ebc36a7)",
+    "plugins": {
+      "fmod_engine": "2.03.06",
+      "fmod_gdextension": "6.1.0-4.5.0",
+      "sentry_godot": "1.5.0",
+      "spine_runtimes": "4.2 (spine-runtimes submodule)"
+    },
+    "tested_on": "H700 / muOS 2601 (glibc 2.44), 2026-11-11",
+    "port_build_md5": {
+      "sts2": "416f11c8badc13b81cbadb4c81530c14",
+      "sts2.pck": "d09ef81413af1984f382d758c6aed807",
+      "mods/slaylowres/slaylowres.pck": "09fdf6716a43a73597547ce9a8891377",
+      "libGodotFmod.linux.template_release.arm64.so": "daa922b1e83a36d01215542eea7ec092"
+    }
+  },
+  "known_newer": {
+    "version": "v0.107.1",
+    "date": "2026-06-18",
+    "steam_build_id": 23811903,
+    "manifest_id": "7881097836989620034",
+    "status": "not yet tried"
+  }
+}

@@ -41,12 +41,39 @@ fi
 
 echo "Checking recovered project"
 
+# Which game build is the input? Steam keeps release_info.json next to the PCK.
+INPUT_RELEASE="$(dirname "$PCK_FILE")/release_info.json"
+RECORDED_RELEASE="$RECOVER_DIR/.slaypatcher-source-release.json"
+input_version=$(python3 -I -c 'import json,sys; print(json.load(open(sys.argv[1])).get("version","?"))' "$INPUT_RELEASE" 2>/dev/null || echo "unknown")
+echo "Input PCK game version: $input_version"
+
 if [[ "$FORCE" -eq 1 || ! -f "$RECOVER_DIR/project.godot" ]]; then
     echo "Recovering PCK"
+    if [[ -d "$RECOVER_DIR" && ! -d "$SCRIPT_DIR/snapshots" ]]; then
+        echo "WARNING: replacing the recovered project, and there are no snapshots."
+        echo "         Consider 'tools/snapshot.sh save' first (see README 'Game versions')."
+    fi
     rm -rf "$RECOVER_DIR"
     "$GDRE_BIN" --headless --recover="$PCK_FILE" --output="$RECOVER_DIR"
+    if [[ -f "$INPUT_RELEASE" ]]; then
+        cp "$INPUT_RELEASE" "$RECORDED_RELEASE"
+    else
+        echo '{"version": "unknown"}' > "$RECORDED_RELEASE"
+    fi
+    echo "Recovered game version $input_version. Update game-version.json once it's tested."
 else
     echo "Recovery skipped"
+    if [[ -f "$RECORDED_RELEASE" ]]; then
+        recorded_version=$(python3 -I -c 'import json,sys; print(json.load(open(sys.argv[1])).get("version","?"))' "$RECORDED_RELEASE")
+        echo "Recovered project is game version $recorded_version"
+        if [[ "$recorded_version" != "$input_version" ]]; then
+            echo "WARNING: the input PCK ($input_version) differs from the recovered project ($recorded_version)."
+            echo "         Building from the existing recovery. Use FORCE=1 to re-recover (snapshot first)."
+        fi
+    else
+        echo "NOTE: the recovered project's game version wasn't recorded (recovered before version"
+        echo "      tracking). See game-version.json for what it is. The input PCK is $input_version."
+    fi
 fi
 
 if [[ ! -f "$LINUX_PY" ]]; then
