@@ -28,6 +28,7 @@ public static class SlayPerfMod
         foreach (string k in Cfg.UnknownKeys()) Log($"warning: unknown config key '{k}'");
 
         Patches.Apply(Cfg);
+        QuitOnSignal.Install();
 
         _tree = (SceneTree)Engine.GetMainLoop();
         _spine = Cfg.SpineHz > 0 ? new SpineThrottle(Cfg.SpineHz) : null;

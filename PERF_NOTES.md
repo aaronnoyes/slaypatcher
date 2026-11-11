@@ -21,8 +21,11 @@ Device: H700 (4x Cortex-A53, Mali-G31 MP2), muOS, **973 MB RAM, no swap**. Displ
 - About half the remaining hitch seconds coincide with a GC pause over 5 ms. The CPU also falls to
   288 MHz between bursts under `schedutil`, and temperature reached 75 C.
 - Next runs: `SLAY_DOTNET_TWEAKS=1` (fewer gen0 GCs), then `SLAY_GOVERNOR=performance`.
-- Menu+Start didn't quit because the launcher passed gptokeyb2 `-x` (xbox360 emulation), not a quit
-  mode, and the game ignores SIGTERM. Now passes `-X` (quit via kill). Not yet confirmed on device.
+- Menu+Start didn't quit: the game ignores SIGTERM (the embedded .NET runtime takes over the signal
+  and never exits). gptokeyb2 sent it, then exited itself, taking its virtual controller with it, so
+  the game kept running with no input and looked frozen. SlayPerf now handles SIGTERM/SIGINT by
+  calling the game's own `NGame.Quit()` (saves settings and progress), with a SIGKILL fallback after 5 s.
+  On PC, SIGTERM at the main menu now exits in 1.2 s. Before, it never exited.
 
 ### Game version caveat
 This port is built from a months-old game build. The lowres PCK overrides `.ctex` files by path, and
@@ -71,5 +74,5 @@ Same route each run: boot, main menu, continue the Ironclad run, first combat.
   so no SD card swapping.
 
 ### Open issues
-- Menu+Start quit: fixed in the launcher (`-X`), needs confirming on device.
+- Menu+Start quit: fixed via SlayPerf's SIGTERM handler, needs confirming on device.
 - Audio: FMOD has no arm64 build, so there's still no music.
