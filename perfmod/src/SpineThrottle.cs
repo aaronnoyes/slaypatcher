@@ -22,6 +22,7 @@ internal sealed class SpineThrottle
         public required Node Node;
         public required ulong Id;
         public double Acc;
+        public double Phase;
     }
 
     // Frame deltas are never exact (2 x 33.33 ms < 1/15 s), so without a little slack a 15 Hz
@@ -47,7 +48,7 @@ internal sealed class SpineThrottle
         // Golden-ratio phase offsets spread sprites evenly across frames for any rate and count,
         // so they don't all skin on the same frame.
         double phase = (_registered++ * 0.6180339887) % 1.0;
-        _sprites.Add(new Entry { Node = node, Id = id, Acc = phase * _interval });
+        _sprites.Add(new Entry { Node = node, Id = id, Acc = phase * _interval, Phase = phase });
     }
 
     public void Tick(double delta)
@@ -66,7 +67,9 @@ internal sealed class SpineThrottle
             e.Acc += delta;
             if (e.Acc < _interval - Slack) continue;
             e.Node.Call(UpdateSkeleton, (float)e.Acc);
-            e.Acc = 0;
+            // After a slow frame every sprite is overdue at once; resetting all to 0 would keep
+            // them in lockstep forever. Restore each sprite's own phase offset instead.
+            e.Acc = e.Acc > 2 * _interval ? e.Phase * _interval : 0;
             updates++;
         }
         UpdatesLastFrame = updates;

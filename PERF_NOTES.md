@@ -9,28 +9,45 @@ Device: H700 (4x Cortex-A53, Mali-G31 MP2), muOS, **973 MB RAM, no swap**. Displ
 
 **On the device:** game installed at `/mnt/sdcard/ports/slaythespire2`, launcher in `/mnt/sdcard/ROMS/PORTS`.
 Active mods: `slayperf` + `slaylowres` (scale 0.5). `slaytiny` (diagnostic) is parked in `mods-disabled/`.
-`perf.env` (next run, `gov-perf`): `SLAYPERF_SPINE_HZ=15 SLAY_DOTNET_TWEAKS=1 SLAY_GOVERNOR=performance`.
+`perf.env` (next run, `gov-perf2`): `SLAYPERF_SPINE_HZ=15 SLAY_DOTNET_TWEAKS=1 SLAY_GOVERNOR=performance`.
 
 **Where it stands:** playable, mostly steady 30 FPS in combat. Hitches: ~19/min over 50 ms, ~4/min
 over 100 ms. The 100 ms+ frames are the stutter you notice. First-time effects still freeze 2-10 s once
 per install (shader compile, then cached). Select+Start quit is confirmed on device (2026-11-11).
 
 **Before merging `perf-work`, still to test** (one change per run, in this order):
-1. `SLAY_GOVERNOR=performance` (set up as `gov-perf`): the CPU drops to 288 MHz between bursts under
-   `schedutil`, which likely feeds the 100 ms+ frames. Watch `temp_c` (already ~75 C). The new
-   per-hitch log shows each slow frame's clock speed directly.
-2. Attribute the remaining 100 ms+ frames with the hitch log (`*-hitches.csv`): GC run, mass node
-   instancing (scene/VFX spawn), or a specific game action from `last_log`.
-3. Shader warm-up: instance every VFX scene off-screen on first launch (or during loading) so the
-   2-10 s first-use freezes happen once, up front, instead of mid-fight.
-4. `particles=half` and `preload_vfx=false` haven't been measured on device yet. On PC,
+1. A longer `gov-perf2` session (with the Spine phase fix) on a character you've already played, to
+   confirm the governor and get per-minute numbers that compare with earlier runs.
+2. Startup warm-up: (a) preload the ~21 assets the game loads synchronously mid-combat ("Asset not
+   cached": power icons, `card.tscn`, `grid_card_holder.tscn`, `vfx_debuff_applied`/`vfx_buff_applied`...),
+   and (b) instance VFX scenes off-screen once so their shaders compile during loading, not mid-fight.
+3. `particles=half` and `preload_vfx=false` haven't been measured on device yet. On PC,
    `preload_vfx=false` cut the "Common" preload from 6.8 s to 0.5 s.
-5. Updating to a current game build means a full re-port (repack.sh) **and** rebuilding the
+4. Updating to a current game build means a full re-port (repack.sh) **and** rebuilding the
    low-res PCK (see the version caveat below).
 
 **Tooling notes for picking this back up:** `./deploy.sh pull` then `tools/perfreport.py` on
 `device-logs/**/*.csv`. muOS SSH is `root`/`root`, and device paths are as above. For live viewing,
 `tail -F` the newest CSV in `mods/slayperf/logs/` over SSH.
+
+## 2026-11-11: performance governor (gov-perf)
+
+Short session (~106 s, under a minute of combat) and on **Silent**, not the usual Ironclad route, so
+every Silent effect was a first use. Not comparable per minute with earlier runs. Subjectively "feels good".
+
+- The CPU stayed at 1800 MHz throughout (min 1800 vs 288 before). Peak temperature was 66 C. The
+  launcher restored `schedutil` on exit.
+- The hitch log (31 frames >100 ms) attributes the remaining stutter:
+  - Low clocks: ruled out (all at 1800 MHz).
+  - GC: only 9 of 31, mostly during loading.
+  - Synchronous mid-combat loads: frames of 110-280 ms next to `Asset not cached` lines. Across all
+    runs there are only 21 distinct such assets (power icons, card/holder scenes, buff/debuff VFX).
+  - First-use card effects (first Strikes, Thin Slice VFX): 200-370 ms.
+- Found a Spine throttle bug: after any slow frame every sprite is overdue, they all reset to 0 and
+  stay in lockstep (spine_updates = all sprites on nearly every hitch line). Fixed: after a catch-up
+  update each sprite returns to its own phase offset.
+- Governor added to the recommended setup on the strength of this (clocks ruled out, temperature fine).
+  To be confirmed by the longer `gov-perf2` run.
 
 ## 2026-11-11: quit confirmed, per-hitch logging
 

@@ -67,12 +67,14 @@ What the measurements so far support (H700, 973 MB RAM, no swap). Details in [PE
 ```
 ./tools/make-lowres.sh                       # build the half-size texture mod
 ./deploy.sh mod lowres lowres-on launcher
-./deploy.sh perfenv SLAYPERF_SPINE_HZ=15 SLAY_DOTNET_TWEAKS=1
+./deploy.sh perfenv SLAYPERF_SPINE_HZ=15 SLAY_DOTNET_TWEAKS=1 SLAY_GOVERNOR=performance
 ```
 - **Low-res textures** are the big one. Without them, the game runs out of RAM in combat and thrashes
   the SD card (~0.1 FPS). With them: ~320 MB free, 30 FPS, main menu in ~27 s instead of ~48 s.
 - **`spine_hz=15`** removes the sustained 17-18 FPS dips caused by Spine CPU skinning.
 - **`SLAY_DOTNET_TWEAKS=1`** cuts gen0 GCs from ~170 to ~10 per session (small hitches -2/3).
+- **`SLAY_GOVERNOR=performance`** keeps the CPU at full clock while the game runs (under `schedutil` it fell
+  to 288 MHz between bursts). Peak temperature in testing was 66 C. The launcher restores the old governor on exit.
 - The first time each effect is drawn, its shaders compile (2-10 s freeze). They're cached in
   `conf/SlayTheSpire2/shader_cache`, so each one only happens once per install.
 
