@@ -16,6 +16,9 @@ and what to test next. `README.md` has user-facing usage.
   perf knobs, SIGTERM-to-clean-quit, save-profile patch. `perfmod/build.sh` builds it into `mods/slayperf/`.
 - `tools/lowres/lowres.gd` + `tools/make-lowres.sh`: builds `mods/slaylowres/` (texture override PCK).
 - `tools/perfreport.py`: compares SlayPerf CSVs side by side. `tools/fb2png.py`: framebuffer screenshots.
+- `tools/build-fmod-arm64.sh`: cross-builds fmod-gdextension 6.1.0 for Linux arm64 against the FMOD
+  2.03.06 Linux SDK (user-supplied, needs an fmod.com login; never fetch it from elsewhere) and adds
+  `linux.*.arm64` entries to `sts2-recover/addons/fmod/fmod.gdextension`. Clone and SDK are gitignored.
 - `deploy.sh`: everything device-side over SSH (install, mod, lowres on/off, perfenv, shot, pull).
 - `export/Linux-x86_64/`: x86_64 build of the same game for PC testing (gitignored). Mods go in
   `export/Linux-x86_64/mods/`. Run headless with `XDG_DATA_HOME=<scratch>` so real saves aren't touched.
@@ -54,6 +57,8 @@ Don't launch the game over SSH; the user starts it from the Ports menu.
 - Harmony needs `libgcc_s` dlopen'ed with RTLD_GLOBAL (Godot binaries link libgcc statically).
 - In the mod, `Environment` is ambiguous (Godot vs System). Use `System.Environment`.
 - `perfmod/build.sh | tail -1` hides build failures (an old DLL gets deployed). Grep for `error|Built`.
+- GDExtensions (FMOD, Spine, Sentry) load at engine start, before mods, so native-library changes
+  always need a re-export (`rm slaythespire2/slaythespire2/sts2 && ./repack.sh <pck>` re-runs just the export).
 - A low-res PCK is tied to the game build it was made from (ctex names come from source paths, not
   content). Rebuild it after any game update.
 - The GPU is the Mali blob driver (GLES 3.2, compatibility renderer). ASTC and ETC2 are both supported.

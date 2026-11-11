@@ -2,8 +2,8 @@
 Tools for patching Slay the Spire 2 to run on arm64 embedded Linux.
 This is meant to be run on Linux, I don't have a Windows PC to test on. Feel free to open PRs.
 Status (tested on an H700 / muOS handheld): playable at a mostly steady 30 FPS with the
-[recommended performance setup](#recommended-setup). Some stutter remains, and music does not work
-(FMOD has no arm64 build). Measurements and findings are in [PERF_NOTES.md](PERF_NOTES.md).
+[recommended performance setup](#recommended-setup). Some stutter remains, and audio does not
+work yet (the game ships no Linux arm64 FMOD; see [Audio](#audio), in progress). Measurements and findings are in [PERF_NOTES.md](PERF_NOTES.md).
 Contributor/agent notes (layout, workflow, gotchas) are in [CLAUDE.md](CLAUDE.md).
 
 ## Requirements
@@ -57,6 +57,23 @@ PortMaster says it's unknown, refresh it first (`harbourmaster update`).
 
 **Quitting:** Select+Start. (Menu+Start does nothing.) The launcher watches PortMaster's gptokeyb and
 asks the game to quit when the hotkey fires. SlayPerf turns that into the game's own save-and-quit.
+
+## Audio
+The game uses FMOD 2.03.06 through fmod-gdextension 6.1.0, and only ships native libraries for
+Windows, macOS, Linux x86_64 and Android. The Android arm64 ones are bionic builds and can't load on
+glibc. `tools/build-fmod-arm64.sh` cross-compiles the plugin for Linux arm64 and adds it to the
+recovered project. GDExtensions load before mods, so this needs a re-export.
+
+1. Download **FMOD Engine 2.03.06 for Linux** from https://www.fmod.com/download (free account,
+   under older versions). The Linux package includes arm64 libraries. FMOD's license doesn't allow
+   redistributing it, so it isn't fetched automatically.
+2. Build and re-export. `repack.sh` only re-runs steps whose outputs are missing:
+   ```
+   FMOD_SDK=/path/to/fmodstudioapi20306linux.tar.gz ./tools/build-fmod-arm64.sh
+   rm slaythespire2/slaythespire2/sts2 && ./repack.sh /path/to/SlayTheSpire2.pck
+   ./deploy.sh game
+   ```
+   (`FMOD_SDK=... ./repack.sh ...` also runs the FMOD step as part of a full build.)
 
 ## Performance work
 The game has a built-in mod loader (`<game dir>/mods/<id>/<id>.json` + `<id>.dll` / `<id>.pck`),

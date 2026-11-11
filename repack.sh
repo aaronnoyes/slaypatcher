@@ -81,6 +81,15 @@ echo "Copying Spine libs"
 mkdir -p "$ADDON_DIR"
 cp "$SPINE_BIN"/libspine_godot.linux.*.arm64.so "$ADDON_DIR/" 2>/dev/null || true
 
+# Audio: the game ships no Linux arm64 FMOD. If you have the FMOD SDK (needs a free fmod.com
+# account), build and wire in the arm64 plugin. See tools/build-fmod-arm64.sh.
+if [[ -n "${FMOD_SDK:-}" ]]; then
+    echo "Building FMOD for arm64"
+    "$SCRIPT_DIR/tools/build-fmod-arm64.sh"
+else
+    echo "FMOD_SDK not set, skipping audio (the port will run without sound)"
+fi
+
 if [[ "$FORCE" -eq 1 || ! -f "$EDITOR_ZIP" ]]; then
     echo "Downloading editor"
     curl -L -o "$EDITOR_ZIP" "$EDITOR_URL"

@@ -20,3 +20,6 @@ sts2-recover/**
 /slaythespire2/slaythespire2/perf.env
 /slaythespire2/slaythespire2/log.txt
 /device-logs
+/fmod-gdextension
+/fmod-sdk
+/fmodstudioapi*.tar.gz
