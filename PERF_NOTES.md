@@ -5,6 +5,36 @@ CSV data comes from SlayPerf (`mods/slayperf/logs/`). Compare runs with `tools/p
 
 Device: H700 (4x Cortex-A53, Mali-G31 MP2), muOS, **973 MB RAM, no swap**. Display 640x480.
 
+## Current state (paused 2026-11-10)
+
+**On the device:** game installed at `/mnt/sdcard/ports/slaythespire2`, launcher in `/mnt/sdcard/ROMS/PORTS`.
+Active mods: `slayperf` + `slaylowres` (scale 0.5). `slaytiny` (diagnostic) is parked in `mods-disabled/`.
+`perf.env`: `SLAYPERF_LABEL=spine15fix-gc SLAYPERF_SPINE_HZ=15 SLAY_DOTNET_TWEAKS=1` (the recommended setup).
+
+**Where it stands:** playable, mostly steady 30 FPS in combat. Hitches: ~19/min over 50 ms, ~4/min
+over 100 ms. The 100 ms+ frames are the stutter you notice. First-time effects still freeze 2-10 s once
+per install (shader compile, then cached).
+
+**Not yet confirmed on device:** Select+Start quitting through the new launcher watcher. Each half was
+tested separately (SIGTERM quits the real game cleanly; the watcher worked with stand-in processes).
+
+**Next steps, roughly in order of expected payoff:**
+1. Try the quit hotkey once.
+2. `SLAY_GOVERNOR=performance`: the CPU drops to 288 MHz between bursts under `schedutil`, which
+   likely feeds the 100 ms+ frames. Watch `temp_c` (already ~75 C).
+3. Shader warm-up: instance every VFX scene off-screen on first launch (or during loading) so the
+   2-10 s first-use freezes happen once, up front, instead of mid-fight.
+4. `particles=half` and `preload_vfx=false` haven't been measured on device yet. On PC,
+   `preload_vfx=false` cut the "Common" preload from 6.8 s to 0.5 s.
+5. Find what the remaining 100 ms+ frames line up with. The CSV only has 1 s granularity, so a
+   per-frame log of hitch frames (with the active scene/action) would help.
+6. Updating to a current game build means a full re-port (repack.sh) **and** rebuilding the
+   low-res PCK (see the version caveat below).
+
+**Tooling notes for picking this back up:** `./deploy.sh pull` then `tools/perfreport.py` on
+`device-logs/**/*.csv`. muOS SSH is `root`/`root`, and device paths are as above. For live viewing,
+`tail -F` the newest CSV in `mods/slayperf/logs/` over SSH.
+
 ## 2026-11-10: fixed Spine throttle + .NET GC tweak (lowres + spine_hz=15 + SLAY_DOTNET_TWEAKS=1)
 
 Combat period only (t > 60 s). The spine15fix-gc sample is short (~2 min).

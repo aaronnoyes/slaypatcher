@@ -1,7 +1,9 @@
 # slaypatcher
 Tools for patching Slay the Spire 2 to run on arm64 embedded Linux.
 This is meant to be run on Linux, I don't have a Windows PC to test on. Feel free to open PRs.
-Right now this is quite slow and music does not work. See [Performance work](#performance-work).
+Status (tested on an H700 / muOS handheld): playable at a mostly steady 30 FPS with the
+[recommended performance setup](#recommended-setup). Some stutter remains, and music does not work
+(FMOD has no arm64 build). Measurements and findings are in [PERF_NOTES.md](PERF_NOTES.md).
 
 ## Requirements
 - Python 3
@@ -39,37 +41,66 @@ FORCE=1 ./repack.sh /path/to/SlayTheSpire2.pck
 ```
 
 ## Deploying
-Copy `./slaythespire2` to `/mnt/mmc/ports` on your device:
+Over SSH (recommended, see [deploy.sh](#iterating-without-pulling-the-sd-card)):
 ```
-cp -r ./slaythespire2 /mnt/mmc/ports/
-```
-
-Copy the launch script to your ports roms directory:
-```
-cp "Slay the Spire 2.sh" /mnt/mmc/roms/ports/
+export DEVICE=root@<device-ip> REMOTE_LAUNCHER_DIR=/mnt/sdcard/ROMS/PORTS
+./deploy.sh install mod launcher
 ```
 
-The `slaythespire2/conf` directory contains a default settings config and will be created on first run if absent.
+Or by hand: copy `./slaythespire2/slaythespire2` to `<sd>/ports/slaythespire2` and
+`./slaythespire2/Slay the Spire 2.sh` to your ports roms folder (muOS: `/mnt/sdcard/ROMS/PORTS`).
+
+The `slaythespire2/conf` directory contains a default settings config (with mod loading pre-accepted)
+and will be created on first run if absent. The launcher needs PortMaster's `weston_pkg_0.2` runtime. If
+PortMaster says it's unknown, refresh it first (`harbourmaster update`).
+
+**Quitting:** Select+Start. (Menu+Start does nothing.) The launcher watches PortMaster's gptokeyb and
+asks the game to quit when the hotkey fires. SlayPerf turns that into the game's own save-and-quit.
 
 ## Performance work
 The game has a built-in mod loader (`<game dir>/mods/<id>/<id>.json` + `<id>.dll` / `<id>.pck`),
 so performance experiments don't need a re-export: build the port once, then iterate on small mods.
 
-### Iterating without pulling the SD card
-`deploy.sh` pushes over SSH (muOS: Configuration > Web Services > SSH, user `root`):
+### Recommended setup
+What the measurements so far support (H700, 973 MB RAM, no swap). Details in [PERF_NOTES.md](PERF_NOTES.md).
 ```
-export DEVICE=root@192.168.1.50                 # REMOTE_GAMEDIR defaults to /mnt/sdcard/ports/slaythespire2
-./deploy.sh game                                # once (~1.7 GB, skipped per file if unchanged)
-./deploy.sh mod                                 # SlayPerf DLL, ~30 KB
-./deploy.sh perfenv SLAYPERF_LABEL=spine15 SLAYPERF_SPINE_HZ=15   # pick the experiment
+./tools/make-lowres.sh                       # build the half-size texture mod
+./deploy.sh mod lowres lowres-on launcher
+./deploy.sh perfenv SLAYPERF_SPINE_HZ=15 SLAY_DOTNET_TWEAKS=1
+```
+- **Low-res textures** are the big one. Without them, the game runs out of RAM in combat and thrashes
+  the SD card (~0.1 FPS). With them: ~320 MB free, 30 FPS, main menu in ~27 s instead of ~48 s.
+- **`spine_hz=15`** removes the sustained 17-18 FPS dips caused by Spine CPU skinning.
+- **`SLAY_DOTNET_TWEAKS=1`** cuts gen0 GCs from ~170 to ~10 per session (small hitches -2/3).
+- The first time each effect is drawn, its shaders compile (2-10 s freeze). They're cached in
+  `conf/SlayTheSpire2/shader_cache`, so each one only happens once per install.
+
+**Game version caveat:** this was built from an older game build. Rebuild the low-res PCK whenever the
+game PCK changes. Godot names imported textures by source path, not content, so a stale low-res PCK
+silently replaces updated art with old art.
+
+### Iterating without pulling the SD card
+`deploy.sh` pushes over SSH (muOS: Configuration > Web Services > SSH, user `root`, password `root`):
+```
+export DEVICE=root@<device-ip>      # REMOTE_GAMEDIR defaults to /mnt/sdcard/ports/slaythespire2
+./deploy.sh install                 # once: game files (~1.7 GB, skipped per file if unchanged) + default conf
+./deploy.sh mod                     # SlayPerf DLL, ~30 KB (keeps the device's slayperf.cfg)
+./deploy.sh lowres                  # texture mod, ~430 MB, skipped if unchanged
+./deploy.sh lowres-off              # park it outside mods/ (no re-upload to turn it back on: lowres-on)
+./deploy.sh perfenv SLAYPERF_LABEL=spine15 SLAYPERF_SPINE_HZ=15   # settings for the next launch
 # ...play on the device...
+./deploy.sh shot                    # screenshot from the framebuffer into device-logs/shots/
 ./deploy.sh pull && tools/perfreport.py --last 3
 ```
+To watch a session live: `ssh root@<ip> 'tail -F /mnt/sdcard/ports/slaythespire2/mods/slayperf/logs/<csv>'`.
+For several commands without retyping the password, open a shared connection and pass it in
+`SSH_OPTS="-o ControlPath=..."`.
 
 ### SlayPerf (`perfmod/`)
 Diagnostics plus independent knobs, so you can change one thing per run. Build with
 `perfmod/build.sh` (needs the .NET 9 SDK and an existing build to compile against).
-- On-screen HUD and a CSV per session in `mods/slayperf/logs/`: FPS, frame times, hitches, draw calls,
+- A CSV per session in `mods/slayperf/logs/` (plus an optional on-screen HUD, `hud=true`, off by
+  default): FPS, frame times, hitches, draw calls,
   texture memory, RSS, available memory, swap use and swap-in/out pages, major faults, process CPU %,
   iowait, CPU/GPU clock, temperature, and markers for the game's preload phases. The sampler runs on its
   own thread, so it keeps recording during long loading stalls.
@@ -77,6 +108,11 @@ Diagnostics plus independent knobs, so you can change one thing per run. Build w
   (throttle Spine skeleton updates), `shaders=passthrough` (no-op every ShaderMaterial to measure shader cost),
   `preload_vfx=false` (skip VFX in the preload screens), `max_fps`.
 - `share_saves=true` (default) keeps your normal save profile. Modded sessions otherwise use `modded/profileN`.
+- Handles SIGTERM/SIGINT by running the game's own `NGame.Quit()` (saves progress). Without it the game
+  ignores SIGTERM entirely.
+- Harmony patches need `libgcc_s` loaded globally, because the exported Godot binaries link libgcc statically.
+  SlayPerf does this before patching. Other Harmony mods on this port would hit the same error
+  (`undefined symbol: _Unwind_RaiseException`).
 
 ### SlayLowRes (`tools/make-lowres.sh`)
 Most textures are authored for 1080p+, many as lossless PNG/WebP (uncompressed RGBA8 in memory), and
@@ -89,12 +125,15 @@ default half size, and converts lossless textures to ASTC:
 ```
 Godot's `.ctex` header stores a texture's logical size separately from its pixel payload and always
 applies it as a size override, so the tool keeps the header and shrinks only the payload. Sprites,
-atlas regions, Spine attachments and layouts are unaffected. Remove the mod (`./deploy.sh nolowres`)
-to compare against full-res textures.
+atlas regions, Spine attachments and layouts are unaffected. Use `./deploy.sh lowres-off` to compare
+against full-res textures. Very small scales (e.g. `--scale 0.01`) are useful as a "no textures"
+diagnostic, but they break soft glows (they turn into offset solid rectangles).
 
 ### Launcher knobs
 `Slay the Spire 2.sh` reads `perf.env` from the game dir (see `perf.env.example`): `SLAY_MODS=0` for a
 vanilla baseline, `SLAY_GOVERNOR=performance`, `SLAY_DOTNET_TWEAKS=1`, and any `SLAYPERF_*` key.
+
+Values in `perf.env` can't contain spaces (they're passed through westonwrap as `VAR=value` words).
 
 The launcher no longer passes `--force-sentry off`. The game only checks whether that flag is present, so
 it was turning Sentry on in debug mode, which logged and uploaded every warning.
