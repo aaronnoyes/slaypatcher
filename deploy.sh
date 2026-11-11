@@ -86,7 +86,7 @@ while [[ $# -gt 0 ]]; do
             echo "game files:"
             push_big sts2
             push_big sts2.pck
-            for f in "$LOCAL_GAMEDIR"/*.so; do push_big "$(basename "$f")"; done
+            for f in "$LOCAL_GAMEDIR"/*.so "$LOCAL_GAMEDIR"/*.so.*; do [[ -e "$f" ]] && push_big "$(basename "$f")"; done
             push_tar "$LOCAL_GAMEDIR" data_sts2_linuxbsd_arm64
             ;;
         launcher)
