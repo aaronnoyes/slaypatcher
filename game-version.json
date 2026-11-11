@@ -7,8 +7,9 @@
     "steam": {
       "app_id": 2868840,
       "depot_id": 2868843,
-      "manifest_id": null,
-      "_manifest_note": "Not recorded at the time. Look it up at https://steamdb.info/depot/2868843/manifests/ (the manifest that was live on 2026-05-02) and fill it in; tools/fetch-game-build.sh can then download that exact build."
+      "manifest_id": "5980382945911826237",
+      "_manifest_note": "From SteamDB depot 2868843 history: the manifest live on 2026-05-02 (the recovery date). Download it with: tools/fetch-game-build.sh tested",
+      "manifest_published": "2026-04-17T00:53:14Z"
     },
     "engine": "Godot 4.5.1 mono (bytecode 4.5.0-stable ebc36a7)",
     "plugins": {
@@ -26,10 +27,20 @@
     }
   },
   "known_newer": {
-    "version": "v0.107.1",
-    "date": "2026-06-18",
-    "steam_build_id": 23811903,
-    "manifest_id": "7881097836989620034",
-    "status": "not yet tried"
+    "_note": "Later builds of depot 2868843 from SteamDB. None tried yet.",
+    "builds": [
+      {
+        "manifest_id": "5787074490845918032",
+        "published": "2026-05-29T21:30:20Z",
+        "version": "unknown"
+      },
+      {
+        "manifest_id": "7881097836989620034",
+        "published": "2026-06-19T00:33:55Z",
+        "version": "v0.107.1",
+        "steam_build_id": 23811903,
+        "note": "what the local Steam install has (release_info.json dated 2026-06-18)"
+      }
+    ]
   }
 }

@@ -189,8 +189,8 @@ together with checksums of the built port. Currently that's the Early Access mai
 - **Old builds from Steam:** `tools/fetch-game-build.sh <manifest-id>` downloads a specific build
   of depot 2868843 with your own account (DepotDownloader, or prints the `download_depot` command
   for Steam's built-in console). Manifest IDs per date are listed at
-  https://steamdb.info/depot/2868843/manifests/. The tested build's ID still needs looking up and
-  adding to `game-version.json`, after which `tools/fetch-game-build.sh tested` works.
+  https://steamdb.info/depot/2868843/manifests/. The tested build is manifest `5980382945911826237`
+  (published 2026-04-17), so `tools/fetch-game-build.sh tested` downloads it.
 - When moving to a new build, also rebuild the low-res PCK and re-run the FMOD build, re-test, then
   update `game-version.json`.
 
