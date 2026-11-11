@@ -14,3 +14,9 @@ sts2-recover/**
 /slaythespire2/slaythespire2/libsentry.linux.release.arm64.so
 /slaythespire2/slaythespire2/libspine_godot.linux.template_release.arm64.so
 /slaythespire2/slaythespire2/sts2
+/perfmod/bin
+/perfmod/obj
+/slaythespire2/slaythespire2/mods/
+/slaythespire2/slaythespire2/perf.env
+/slaythespire2/slaythespire2/log.txt
+/device-logs

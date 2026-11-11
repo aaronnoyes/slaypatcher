@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    SlayPerf: a diagnostics + performance-knob mod for the Slay the Spire 2 arm64 port.
+    Pure IL, so the same DLL runs on the arm64 device build and the x86_64 PC build.
+
+    Compiles against the assemblies from an exported build. Override with:
+      dotnet build -p:GameDataDir=/path/to/data_sts2_linuxbsd_<arch>
+  -->
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>slayperf</AssemblyName>
+    <RootNamespace>SlayPerf</RootNamespace>
+    <Nullable>enable</Nullable>
+    <LangVersion>13.0</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GameDataDir)' == ''">
+    <GameDataDir Condition="Exists('$(MSBuildThisFileDirectory)../slaythespire2/slaythespire2/data_sts2_linuxbsd_arm64/sts2.dll')">$(MSBuildThisFileDirectory)../slaythespire2/slaythespire2/data_sts2_linuxbsd_arm64</GameDataDir>
+    <GameDataDir Condition="'$(GameDataDir)' == '' And Exists('$(MSBuildThisFileDirectory)../export/Linux-x86_64/data_sts2_linuxbsd_x86_64/sts2.dll')">$(MSBuildThisFileDirectory)../export/Linux-x86_64/data_sts2_linuxbsd_x86_64</GameDataDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="sts2"><HintPath>$(GameDataDir)/sts2.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="GodotSharp"><HintPath>$(GameDataDir)/GodotSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(GameDataDir)/0Harmony.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
+  <Target Name="CheckGameDataDir" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(GameDataDir)/sts2.dll')" Text="Could not find sts2.dll. Run repack.sh first, or pass -p:GameDataDir=..." />
+  </Target>
+</Project>

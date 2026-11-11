@@ -1,0 +1,10 @@
+{
+  "id": "slayperf",
+  "name": "SlayPerf",
+  "author": "slaypatcher",
+  "description": "Performance HUD, CSV logging and isolated performance knobs for low-end arm64 handhelds.",
+  "version": "0.1.0",
+  "has_pck": false,
+  "has_dll": true,
+  "affects_gameplay": false
+}

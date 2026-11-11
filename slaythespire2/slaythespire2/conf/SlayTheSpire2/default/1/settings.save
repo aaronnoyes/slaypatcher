@@ -49,7 +49,9 @@
   },
   "language": "eng",
   "limit_fps_in_background": true,
-  "mod_settings": null,
+  "mod_settings": {
+    "mods_enabled": true
+  },
   "msaa": 0,
   "resize_windows": true,
   "schema_version": 5,

@@ -1,0 +1,6 @@
+; Minimal project so the Godot editor binary can run lowres.gd headless.
+config_version=5
+
+[application]
+
+config/name="slaylowres-tool"
