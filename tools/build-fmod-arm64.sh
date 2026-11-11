@@ -52,6 +52,15 @@ if ! grep -q "aarch64-linux-gnu-gcc" "$LINUX_PY"; then
     sed -i 's/    elif env\["arch"\] == "arm64":/    elif env["arch"] == "arm64":\n        env["CC"] = "aarch64-linux-gnu-gcc"\n        env["CXX"] = "aarch64-linux-gnu-g++"\n        env["AR"] = "aarch64-linux-gnu-ar"\n        env["LINK"] = "aarch64-linux-gnu-g++"/' "$LINUX_PY"
 fi
 
+# Upstream relies on <cstdio> arriving transitively. The aarch64 cross GCC doesn't provide it.
+COMMON_H="$SRC/src/helpers/common.h"
+grep -q "#include <cstdio>" "$COMMON_H" || sed -i '0,/^#include/s//#include <cstdio>\n#include/' "$COMMON_H"
+
+# Upstream only builds Linux x86_64: it always adds -m64 and gold, which the aarch64 toolchain rejects.
+SCONS_FILE="$SRC/SConstruct"
+grep -q 'if env\["arch"\] == "x86_64": env.Append(LINKFLAGS=\["-m64"' "$SCONS_FILE" \
+    || sed -i 's/^    env.Append(LINKFLAGS=\["-m64", "-fuse-ld=gold"\])/    if env["arch"] == "x86_64": env.Append(LINKFLAGS=["-m64", "-fuse-ld=gold"])/' "$SCONS_FILE"
+
 # ---- build
 OUT="$SRC/out/"
 for target in template_release template_debug; do

@@ -75,6 +75,9 @@ recovered project. GDExtensions load before mods, so this needs a re-export.
    ```
    (`FMOD_SDK=... ./repack.sh ...` also runs the FMOD step as part of a full build.)
 
+The plugin built with the Ubuntu cross toolchain needs glibc >= 2.38 on the device (muOS 2601 has
+2.44). FMOD's own libraries only need 2.17. Older firmware would need an older cross toolchain.
+
 ## Performance work
 The game has a built-in mod loader (`<game dir>/mods/<id>/<id>.json` + `<id>.dll` / `<id>.pck`),
 so performance experiments don't need a re-export: build the port once, then iterate on small mods.

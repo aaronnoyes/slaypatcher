@@ -19,6 +19,8 @@ and what to test next. `README.md` has user-facing usage.
 - `tools/build-fmod-arm64.sh`: cross-builds fmod-gdextension 6.1.0 for Linux arm64 against the FMOD
   2.03.06 Linux SDK (user-supplied, needs an fmod.com login; never fetch it from elsewhere) and adds
   `linux.*.arm64` entries to `sts2-recover/addons/fmod/fmod.gdextension`. Clone and SDK are gitignored.
+  The script patches upstream for arm64: adds a missing `<cstdio>` include and makes the `-m64`/gold
+  link flags x86_64-only.
 - `deploy.sh`: everything device-side over SSH (install, mod, lowres on/off, perfenv, shot, pull).
 - `export/Linux-x86_64/`: x86_64 build of the same game for PC testing (gitignored). Mods go in
   `export/Linux-x86_64/mods/`. Run headless with `XDG_DATA_HOME=<scratch>` so real saves aren't touched.
