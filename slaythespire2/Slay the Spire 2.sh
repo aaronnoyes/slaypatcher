@@ -44,7 +44,52 @@ $ESUDO mount "$controlfolder/libs/${weston_runtime}.squashfs" "${weston_dir}"
 cd $GAMEDIR
 
 # ---------------------------------------------------------------------------------------
+# Settings menu (LÖVE, bundled with PortMaster), shown on every launch. Same pattern as the
+# PortMaster "Binding of Isaac: Rebirth" port. It writes conf/love/sts2launcher/settings.cfg,
+# which is turned into SLAY_*/SLAYPERF_* settings below. Set SLAY_SKIP_MENU=1 (in perf.env
+# or the environment) to go straight to the game with the saved settings.
+# ---------------------------------------------------------------------------------------
+[ -f "$GAMEDIR/perf.env" ] && grep -q '^SLAY_SKIP_MENU=1' "$GAMEDIR/perf.env" && SLAY_SKIP_MENU=1
+if [ -d "$GAMEDIR/mods/slaylowres" ] || [ -d "$GAMEDIR/mods-disabled/slaylowres" ]; then
+  export SLAY_LOWRES_AVAILABLE=1
+else
+  export SLAY_LOWRES_AVAILABLE=0
+fi
+love_txt="$controlfolder/runtimes/love_11.5/love.txt"
+if [ "${SLAY_SKIP_MENU:-0}" != "1" ] && [ -f "$love_txt" ]; then
+  source "$love_txt"
+  $GPTOKEYB "$LOVE_GPTK" -c "$GAMEDIR/launcher.gptk" &
+  XDG_DATA_HOME=$CONFDIR $LOVE_RUN "$GAMEDIR/launcher"
+  menu_status=$?
+  $ESUDO pkill -f "gptokeyb.*$LOVE_GPTK"
+  if [ "$menu_status" -ne 0 ]; then
+    echo "Settings menu closed without launching (status $menu_status)"
+    [[ "$PM_CAN_MOUNT" != "N" ]] && $ESUDO umount "${weston_dir}"
+    pm_finish
+    exit 0
+  fi
+fi
+
+# Apply the menu's settings. Parsed rather than sourced, and only known keys are accepted.
+SETTINGS_CFG="$CONFDIR/love/sts2launcher/settings.cfg"
+if [ -f "$SETTINGS_CFG" ]; then
+  while IFS='=' read -r key value; do
+    [[ "$value" =~ ^[A-Za-z0-9_]+$ ]] || continue
+    case "$key" in
+      lowres)    SLAY_LOWRES=$value ;;
+      spine_hz)  SLAYPERF_SPINE_HZ=$value ;;
+      particles) SLAYPERF_PARTICLES=$value ;;
+      gc)        SLAY_DOTNET_TWEAKS=$value ;;
+      cpu_max)   [ "$value" = "1" ] && SLAY_GOVERNOR=performance || SLAY_GOVERNOR= ;;
+      hud)       [ "$value" = "1" ] && SLAYPERF_HUD=true || SLAYPERF_HUD=false ;;
+    esac
+  done < "$SETTINGS_CFG"
+  echo "Menu settings: $(tr '\n' ' ' < "$SETTINGS_CFG")"
+fi
+
+# ---------------------------------------------------------------------------------------
 # Performance experiments. Everything here is optional; see README "Performance work".
+# perf.env is applied after the menu settings, so it overrides them.
 #   SLAY_MODS=0             run with --nomods (true vanilla baseline)
 #   SLAY_GOVERNOR=performance   pin the CPU governor for the session (restored on exit)
 #   SLAY_DOTNET_TWEAKS=1    cheaper .NET JIT/GC settings for slow CPUs
@@ -53,6 +98,13 @@ cd $GAMEDIR
 # You can also put these in $GAMEDIR/perf.env so you don't have to edit this script.
 # ---------------------------------------------------------------------------------------
 [ -f "$GAMEDIR/perf.env" ] && . "$GAMEDIR/perf.env"
+
+# Low-res textures: SLAY_LOWRES=1/0 moves the mod in or out of mods/ (a rename, no copying).
+if [ "${SLAY_LOWRES:-}" = "1" ] && [ -d "$GAMEDIR/mods-disabled/slaylowres" ]; then
+  mkdir -p "$GAMEDIR/mods" && mv "$GAMEDIR/mods-disabled/slaylowres" "$GAMEDIR/mods/"
+elif [ "${SLAY_LOWRES:-}" = "0" ] && [ -d "$GAMEDIR/mods/slaylowres" ]; then
+  mkdir -p "$GAMEDIR/mods-disabled" && mv "$GAMEDIR/mods/slaylowres" "$GAMEDIR/mods-disabled/"
+fi
 
 # The game only loads mods after the player accepts the mod warning. Pre-accept it so the
 # perf mods load on a fresh install.

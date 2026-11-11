@@ -6,6 +6,7 @@
 #
 # Commands (run several in one go, e.g. "./deploy.sh mod perfenv SLAYPERF_SPINE_HZ=15"):
 #   mod        build + push the SlayPerf DLL/manifest (~30 KB). Keeps the device's slayperf.cfg.
+#   menu       push the LÖVE settings menu shown at launch (launcher/, launcher.gptk)
 #   cfg        push perfmod/slayperf.cfg over the device copy
 #   lowres     push the slaylowres texture mod (~430 MB, skipped if unchanged)
 #   lowres-off / lowres-on   park or restore slaylowres on the device (just a move, no re-upload)
@@ -58,6 +59,10 @@ while [[ $# -gt 0 ]]; do
             rsh "[ -f '$REMOTE_GAMEDIR/mods/slayperf/slayperf.cfg' ]" \
                 || push_tar "$ROOT/perfmod" --transform 's|^|mods/slayperf/|' slayperf.cfg
             ;;
+        menu)
+            echo "pushing settings menu"
+            push_tar "$LOCAL_GAMEDIR" launcher launcher.gptk
+            ;;
         cfg)
             echo "pushing slayperf.cfg"
             push_tar "$ROOT/perfmod" --transform 's|^|mods/slayperf/|' slayperf.cfg
@@ -79,7 +84,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         install)
             # Fresh install: game files plus the default config (only if the device has none).
-            set -- game "$@"
+            set -- game menu "$@"
             rsh "[ -d '$REMOTE_GAMEDIR/conf' ]" || { echo "pushing default conf"; push_tar "$LOCAL_GAMEDIR" conf; }
             ;;
         game)

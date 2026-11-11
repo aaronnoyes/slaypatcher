@@ -10,7 +10,11 @@ and what to test next. `README.md` has user-facing usage.
 - `repack.sh`: full port build. Recovers the Steam PCK with gdsdecomp into `sts2-recover/` (gitignored,
   decompiled game source), cross-builds Spine for arm64, re-imports textures as ETC2/ASTC and exports
   to `slaythespire2/slaythespire2/` (`sts2`, `sts2.pck`). Slow: avoid re-running it to iterate.
-- `slaythespire2/Slay the Spire 2.sh`: PortMaster launcher (Weston/crusty, perf.env, quit watcher).
+- `slaythespire2/Slay the Spire 2.sh`: PortMaster launcher. Order: settings menu (LÖVE app in
+  `slaythespire2/slaythespire2/launcher/`, keys via `launcher.gptk`) -> parse its `settings.cfg`
+  (whitelisted keys only) -> `perf.env` overrides -> low-res folder toggle -> Weston + game + quit watcher.
+  The menu exits 0 to launch, non-zero to back out. Test its logic headlessly with `luajit` and a
+  stubbed `love` table. Its help text quotes measured numbers: update it when PERF_NOTES changes.
 - `slaythespire2/slaythespire2/`: the device game folder. Build outputs and `mods/` are gitignored.
 - `perfmod/`: **SlayPerf** C# mod (DLL, loaded by the game's own mod loader). CSV + hitch logging,
   perf knobs, SIGTERM-to-clean-quit, save-profile patch. `perfmod/build.sh` builds it into `mods/slayperf/`.
@@ -34,6 +38,8 @@ Mods only load if `settings.save` has `"mod_settings": {"mods_enabled": true}` (
 
 ## Workflow
 - Iterate with mods, not re-exports: `./perfmod/build.sh && ./deploy.sh mod` pushes ~35 KB.
+- The device's `perf.env` overrides the settings menu. Clear it (`./deploy.sh perfenv`) when done
+  experimenting, or the menu appears to do nothing.
 - Experiments: **one knob per run**, set with `./deploy.sh perfenv SLAYPERF_LABEL=<name> ...`, same
   route each run (boot, continue the Ironclad run, first combat). Then `./deploy.sh pull` and compare
   with `tools/perfreport.py`. Record results in `PERF_NOTES.md` (newest first) and update its

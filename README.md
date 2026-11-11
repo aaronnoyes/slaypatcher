@@ -55,6 +55,13 @@ The `slaythespire2/conf` directory contains a default settings config (with mod 
 and will be created on first run if absent. The launcher needs PortMaster's `weston_pkg_0.2` runtime. If
 PortMaster says it's unknown, refresh it first (`harbourmaster update`).
 
+**Settings menu:** every launch opens a small menu first (a LÖVE app using PortMaster's bundled
+runtime, same pattern as the Binding of Isaac port). **A/Start** launches, **Left/Right** changes a
+row, and **B** goes back to the frontend. Rows: preset (Recommended / Battery / Quality, or Custom),
+low-res textures, animation rate, particles, fewer GC pauses, CPU at full speed, performance overlay.
+Each row's help line gives the measured effect. Choices are saved in `conf/love/sts2launcher/settings.cfg`.
+`perf.env` still applies on top (for experiments). Put `SLAY_SKIP_MENU=1` in it to skip the menu.
+
 **Quitting:** Select+Start. (Menu+Start does nothing.) The launcher watches PortMaster's gptokeyb and
 asks the game to quit when the hotkey fires. SlayPerf turns that into the game's own save-and-quit.
 
@@ -155,7 +162,8 @@ against full-res textures. Very small scales (e.g. `--scale 0.01`) are useful as
 diagnostic, but they break soft glows (they turn into offset solid rectangles).
 
 ### Launcher knobs
-`Slay the Spire 2.sh` reads `perf.env` from the game dir (see `perf.env.example`): `SLAY_MODS=0` for a
+The settings menu covers the everyday options. For experiments, `Slay the Spire 2.sh` also reads
+`perf.env` from the game dir, applied *after* the menu, so it wins (see `perf.env.example`): `SLAY_MODS=0` for a
 vanilla baseline, `SLAY_GOVERNOR=performance`, `SLAY_DOTNET_TWEAKS=1`, and any `SLAYPERF_*` key.
 
 Values in `perf.env` can't contain spaces (they're passed through westonwrap as `VAR=value` words).
