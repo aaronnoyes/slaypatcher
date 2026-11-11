@@ -196,7 +196,12 @@ together with checksums of the built port. Currently that's the Early Access mai
   ```
   RECOVER_DIR=$PWD/sts2-recover-latest ./repack.sh /path/to/new/SlayTheSpire2.pck "Linux x86_64" export/latest-x86_64
   ```
-  (`tools/build-fmod-arm64.sh` honours `RECOVER_DIR` too.)
+  (`tools/build-fmod-arm64.sh` honours `RECOVER_DIR` too.) For the device, export `"Linux ARM64"` to
+  e.g. `export/latest-arm64`, copy in the tracked port files (`conf/`, `launcher/`, `launcher.gptk`) and
+  `mods/slayperf`, build its own low-res PCK (`GAMEDIR=export/latest-arm64 tools/make-lowres.sh`), then:
+  `LOCAL_GAMEDIR=export/latest-arm64 ./deploy.sh game menu lowres`. Snapshot it with
+  `RECOVER_DIR=... LOCAL_GAMEDIR=... tools/snapshot.sh save <name>` (restore uses the recorded paths).
+  Back up the device's `conf/` first: a newer game may migrate saves.
 - When moving to a new build, also rebuild the low-res PCK and re-run the FMOD build, re-test, then
   update `game-version.json`.
 

@@ -19,11 +19,13 @@
 #   pull       fetch log.txt and perf CSVs into ./device-logs/
 #
 # Env: DEVICE (required), REMOTE_GAMEDIR (default /mnt/sdcard/ports/slaythespire2),
-#      REMOTE_LAUNCHER_DIR (needed for "launcher"), SSH_OPTS (extra ssh args)
+#      REMOTE_LAUNCHER_DIR (needed for "launcher"), SSH_OPTS (extra ssh args),
+#      LOCAL_GAMEDIR (default slaythespire2/slaythespire2: the build to push)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOCAL_GAMEDIR="$ROOT/slaythespire2/slaythespire2"
+# Override to push a different build, e.g. LOCAL_GAMEDIR=export/latest-arm64 (README "Game versions").
+LOCAL_GAMEDIR="$(realpath "${LOCAL_GAMEDIR:-$ROOT/slaythespire2/slaythespire2}")"
 DEVICE="${DEVICE:?set DEVICE=root@<device-ip>}"
 REMOTE_GAMEDIR="${REMOTE_GAMEDIR:-/mnt/sdcard/ports/slaythespire2}"
 read -r -a SSH_ARGS <<< "${SSH_OPTS:-}"
