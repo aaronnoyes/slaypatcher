@@ -2,8 +2,8 @@
 Tools for patching Slay the Spire 2 to run on arm64 embedded Linux.
 This is meant to be run on Linux, I don't have a Windows PC to test on. Feel free to open PRs.
 Status (tested on an H700 / muOS handheld): playable at a mostly steady 30 FPS with the
-[recommended performance setup](#recommended-setup). Some stutter remains, and audio does not
-work yet (the game ships no Linux arm64 FMOD; see [Audio](#audio), in progress). Measurements and findings are in [PERF_NOTES.md](PERF_NOTES.md).
+[recommended performance setup](#recommended-setup). Some stutter remains. Audio works once
+you build the arm64 FMOD plugin (see [Audio](#audio)). Measurements and findings are in [PERF_NOTES.md](PERF_NOTES.md).
 Contributor/agent notes (layout, workflow, gotchas) are in [CLAUDE.md](CLAUDE.md).
 
 ## Requirements
@@ -166,3 +166,21 @@ it was turning Sentry on in debug mode, which logged and uploaded every warning.
 ### Testing on PC
 The x86_64 export runs the same mods. Put them in `export/Linux-x86_64/mods/`, enable mods in
 `settings.save` (`"mod_settings": {"mods_enabled": true}`) and run `./game --force-steam off`.
+
+## Licensing
+This repo only contains build scripts, tooling and the SlayPerf source. Nothing from the game, FMOD
+or other proprietary SDKs is committed.
+
+- **Slay the Spire 2** (game data, `sts2.pck`, the recovered `sts2-recover/` project) belongs to Mega
+  Crit. You need your own copy. The port is built from your own Steam install.
+- **FMOD Engine** is proprietary (Firelight Technologies, FMOD EULA). Each user downloads the SDK
+  themselves from fmod.com. It is never fetched or committed by these scripts.
+- **fmod-gdextension** (utopia-rise) and **godot-cpp** are MIT-licensed. They're cloned at build
+  time, not vendored. `build-fmod-arm64.sh` applies two small local build patches.
+- **Spine runtimes** are under the Spine Runtimes License (Esoteric Software). They're a git
+  submodule, used as the game itself uses them.
+- **Godot** export templates and editor binaries are downloaded at build time (MIT).
+
+A built port folder (`slaythespire2/slaythespire2/` with `sts2.pck`, FMOD libraries and the
+generated low-res PCK) contains Mega Crit and Firelight material. Keep it for your own device and
+**don't redistribute it** (that includes zipping it per `port.json`). Share the scripts instead.

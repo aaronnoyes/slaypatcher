@@ -151,4 +151,4 @@ Same route each run: boot, main menu, continue the Ironclad run, first combat.
 
 ### Open issues
 - Select+Start quit: launcher watcher + SlayPerf SIGTERM handler, needs one real try on device.
-- Audio: FMOD has no arm64 build, so there's still no music.
+- Audio: fixed 2026-11-11 (arm64 FMOD plugin built from source, `tools/build-fmod-arm64.sh`). On device: `FMOD Sound System: Successfully initialized`, music and SFX play.

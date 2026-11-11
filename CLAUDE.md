@@ -67,4 +67,6 @@ Don't launch the game over SSH; the user starts it from the Ports menu.
   Shader compiles are slow, but they're cached in `conf/SlayTheSpire2/shader_cache`.
 - Godot GDScript tools: `WorkerThreadPool.wait_for_group_task_completion`, `Image.compress_from_channels`,
   and don't name a SceneTree script method `_process`.
+- Licensing: never commit or redistribute game data, the FMOD SDK/libraries or anything derived from them
+  (built port folder, low-res PCK). Only scripts and our own source go in git. See README "Licensing".
 - The user's own data never goes into commits (device IP, Tailscale names, `log.txt`, `device-logs/`).

@@ -23,3 +23,6 @@ sts2-recover/**
 /fmod-gdextension
 /fmod-sdk
 /fmodstudioapi*.tar.gz
+# Native libraries in the port folder: FMOD (proprietary), Spine, Sentry. Built or copied, never committed.
+/slaythespire2/slaythespire2/*.so
+/slaythespire2/slaythespire2/*.so.*
