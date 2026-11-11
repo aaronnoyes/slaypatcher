@@ -29,3 +29,5 @@ sts2-recover/**
 # Local snapshots / downloaded game builds (contain game data: never commit)
 /snapshots
 /game-builds
+# Side-by-side recoveries of other game versions (RECOVER_DIR=...): decompiled game code, never commit
+/sts2-recover-*/

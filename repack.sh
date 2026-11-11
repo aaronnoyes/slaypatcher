@@ -12,8 +12,9 @@ FORCE="${FORCE:-0}"
 SPINE_DIR="$SCRIPT_DIR/spine-runtimes/spine-godot"
 LINUX_PY="$SPINE_DIR/godot-cpp/tools/linux.py"
 SPINE_BIN="$SPINE_DIR/bin/linux"
-ADDON_DIR="$SCRIPT_DIR/sts2-recover/addons/spine/linux"
-RECOVER_DIR="$SCRIPT_DIR/sts2-recover"
+# RECOVER_DIR can be overridden to build another game version side by side (README "Game versions").
+RECOVER_DIR="${RECOVER_DIR:-$SCRIPT_DIR/sts2-recover}"
+ADDON_DIR="$RECOVER_DIR/addons/spine/linux"
 
 EDITOR_ZIP="$SCRIPT_DIR/godot-editor-linux-mono.zip"
 TEMPLATES_TPZ="$SCRIPT_DIR/spine-godot-templates-4.2-4.5.1-stable-mono.tpz"

@@ -191,6 +191,12 @@ together with checksums of the built port. Currently that's the Early Access mai
   for Steam's built-in console). Manifest IDs per date are listed at
   https://steamdb.info/depot/2868843/manifests/. The tested build is manifest `5980382945911826237`
   (published 2026-04-17), so `tools/fetch-game-build.sh tested` downloads it.
+- **Trying a new build side by side:** set `RECOVER_DIR` to recover it into a separate project and
+  export somewhere else, leaving the tested build untouched:
+  ```
+  RECOVER_DIR=$PWD/sts2-recover-latest ./repack.sh /path/to/new/SlayTheSpire2.pck "Linux x86_64" export/latest-x86_64
+  ```
+  (`tools/build-fmod-arm64.sh` honours `RECOVER_DIR` too.)
 - When moving to a new build, also rebuild the low-res PCK and re-run the FMOD build, re-test, then
   update `game-version.json`.
 

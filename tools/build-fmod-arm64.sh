@@ -11,7 +11,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-RECOVER_DIR="$ROOT/sts2-recover"
+RECOVER_DIR="${RECOVER_DIR:-$ROOT/sts2-recover}"
 ADDON="$RECOVER_DIR/addons/fmod"
 SRC="$ROOT/fmod-gdextension"
 SDK_DIR="$ROOT/fmod-sdk"
