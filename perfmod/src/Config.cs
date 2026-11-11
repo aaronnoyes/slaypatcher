@@ -22,6 +22,7 @@ public sealed class Config
     public string CsvDir = "";
     public double SampleInterval = 1.0;
     public double HitchMs = 50;
+    public double HitchLogMs = 100;
 
     public ParticleMode Particles = ParticleMode.On;
     public int SpineHz;
@@ -61,7 +62,7 @@ public sealed class Config
 
     private static readonly string[] Keys =
     {
-        "label", "hud", "csv", "csv_dir", "sample_interval", "hitch_ms",
+        "label", "hud", "csv", "csv_dir", "sample_interval", "hitch_ms", "hitch_log_ms",
         "particles", "spine_hz", "shaders", "preload_vfx", "max_fps", "share_saves",
     };
 
@@ -73,6 +74,7 @@ public sealed class Config
         CsvDir = Str("csv_dir", CsvDir);
         SampleInterval = Math.Max(0.1, Num("sample_interval", SampleInterval));
         HitchMs = Num("hitch_ms", HitchMs);
+        HitchLogMs = Num("hitch_log_ms", HitchLogMs);
         Particles = Str("particles", "on").ToLowerInvariant() switch
         {
             "off" or "0" or "false" => ParticleMode.Off,

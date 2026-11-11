@@ -4,6 +4,7 @@ This is meant to be run on Linux, I don't have a Windows PC to test on. Feel fre
 Status (tested on an H700 / muOS handheld): playable at a mostly steady 30 FPS with the
 [recommended performance setup](#recommended-setup). Some stutter remains, and music does not work
 (FMOD has no arm64 build). Measurements and findings are in [PERF_NOTES.md](PERF_NOTES.md).
+Contributor/agent notes (layout, workflow, gotchas) are in [CLAUDE.md](CLAUDE.md).
 
 ## Requirements
 - Python 3
@@ -103,7 +104,9 @@ Diagnostics plus independent knobs, so you can change one thing per run. Build w
   default): FPS, frame times, hitches, draw calls,
   texture memory, RSS, available memory, swap use and swap-in/out pages, major faults, process CPU %,
   iowait, CPU/GPU clock, temperature, and markers for the game's preload phases. The sampler runs on its
-  own thread, so it keeps recording during long loading stalls.
+  own thread, so it keeps recording during long loading stalls. A second file, `<csv>-hitches.csv`, gets one
+  line per frame slower than `hitch_log_ms` (default 100): GC runs and nodes added during that frame,
+  Spine updates, CPU clock and the game's last log line, so individual stutters can be attributed.
 - Knobs (`slayperf.cfg`, or `SLAYPERF_<KEY>` env vars): `particles=on|half|off`, `spine_hz=N`
   (throttle Spine skeleton updates), `shaders=passthrough` (no-op every ShaderMaterial to measure shader cost),
   `preload_vfx=false` (skip VFX in the preload screens), `max_fps`.

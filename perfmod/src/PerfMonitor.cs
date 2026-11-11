@@ -43,11 +43,22 @@ internal sealed class PerfMonitor
     private Label? _label;
     private StreamWriter? _csv;
 
+    // Per-hitch log: one line per slow frame with what changed during it, so the
+    // remaining stutter can be attributed (GC? scene instancing? low clocks? game action?).
+    private readonly SceneTree _tree;
+    private readonly ConcurrentQueue<string> _hitchLines = new();
+    private StreamWriter? _hitchCsv;
+    private volatile string _lastGameLog = "";
+    private volatile int _cpuMhz = -1;
+    private int _lastGen0, _lastGen2;
+    private long _lastNodeCount;
+
     public PerfMonitor(Config cfg, SceneTree tree, NodeTweaks tweaks, SpineThrottle? spine)
     {
         _cfg = cfg;
         _tweaks = tweaks;
         _spine = spine;
+        _tree = tree;
         _lastFrameTicks = _clock.ElapsedTicks;
 
         Log.LogCallback += OnGameLog;
@@ -63,6 +74,7 @@ internal sealed class PerfMonitor
 
     private void OnGameLog(LogLevel level, string message, int skipFrames)
     {
+        _lastGameLog = message.Length > 140 ? message[..140] : message;
         // Phase markers so CSV rows line up with what the game was doing.
         if (message.StartsWith("Preloading '", StringComparison.Ordinal) ||
             message.StartsWith("[Startup] Time to main menu:", StringComparison.Ordinal) ||
@@ -86,6 +98,21 @@ internal sealed class PerfMonitor
             if (ms > _frameMsMax) _frameMsMax = ms;
             if (ms > _cfg.HitchMs) _hitches++;
         }
+
+        int gen0 = GC.CollectionCount(0), gen2 = GC.CollectionCount(2);
+        long nodes = _tree.GetNodeCount();
+        if (_cfg.HitchLogMs > 0 && ms > _cfg.HitchLogMs && _hitchCsv != null)
+        {
+            _hitchLines.Enqueue(string.Join(",",
+                (_clock.Elapsed.TotalSeconds).ToString("0.00", CultureInfo.InvariantCulture),
+                ms.ToString("0", CultureInfo.InvariantCulture),
+                gen0 - _lastGen0, gen2 - _lastGen2, nodes - _lastNodeCount,
+                _spine?.UpdatesLastFrame ?? 0, _cpuMhz,
+                "\"" + _lastGameLog.Replace("\"", "'").Replace("\n", " ") + "\""));
+        }
+        _lastGen0 = gen0;
+        _lastGen2 = gen2;
+        _lastNodeCount = nodes;
 
         _hudTimer += delta;
         if (_hudTimer < 0.5) return;
@@ -148,6 +175,13 @@ internal sealed class PerfMonitor
             _csv = new StreamWriter(path, false, new UTF8Encoding(false)) { AutoFlush = true };
             _csv.WriteLine($"# slayperf {DateTime.Now:O} {_cfg.Describe()}");
             _csv.WriteLine(string.Join(",", Columns));
+
+            if (_cfg.HitchLogMs > 0)
+            {
+                _hitchCsv = new StreamWriter(Path.ChangeExtension(path, null) + "-hitches.csv", false, new UTF8Encoding(false)) { AutoFlush = true };
+                _hitchCsv.WriteLine($"# frames slower than {_cfg.HitchLogMs} ms. gc0/gc2/node_delta/spine_updates are what changed during that frame; last_log is the game's most recent log line");
+                _hitchCsv.WriteLine("t_s,frame_ms,gc0,gc2,node_delta,spine_updates,cpu_mhz,last_log");
+            }
             SlayPerfMod.Log($"writing perf csv to {path}");
         }
         catch (Exception ex)
@@ -180,6 +214,8 @@ internal sealed class PerfMonitor
             try
             {
                 var cur = SysStats.Read();
+                _cpuMhz = cur.CpuKhz < 0 ? -1 : (int)(cur.CpuKhz / 1000);
+                while (_hitchLines.TryDequeue(out string? h)) _hitchCsv?.WriteLine(h);
                 double dt = Math.Max(1e-3, (cur.WallTicks - prev.WallTicks) / (double)Stopwatch.Frequency);
 
                 int frames; double avg, max; int hitches;
