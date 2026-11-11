@@ -1,46 +1,85 @@
 {
-  "_comment": "The Slay the Spire 2 build this port was last built from and tested on device. Update whenever the port moves to a new game build. See README 'Game versions'.",
+  "_comment": "The Slay the Spire 2 build this port is built from and tested on device ('tested'), plus earlier tested builds ('previous'). Update whenever the port moves to a new game build. See README 'Game versions'.",
   "tested": {
-    "label": "Early Access main branch, recovered 2026-05-02",
-    "recovered_on": "2026-05-02",
-    "newest_bundled_patch_notes": "2026-04-15",
+    "label": "v0.107.1 (Early Access main branch)",
+    "version": "v0.107.1",
+    "release_info": {
+      "commit": "59260271",
+      "date": "2026-06-18T15:43:56-07:00",
+      "branch": "v0.107.1"
+    },
+    "recovered_on": "2026-11-11",
     "steam": {
       "app_id": 2868840,
       "depot_id": 2868843,
-      "manifest_id": "5980382945911826237",
-      "_manifest_note": "From SteamDB depot 2868843 history: the manifest live on 2026-05-02 (the recovery date). Download it with: tools/fetch-game-build.sh tested",
-      "manifest_published": "2026-04-17T00:53:14Z"
+      "manifest_id": "7881097836989620034",
+      "manifest_published": "2026-06-19T00:33:55Z",
+      "steam_build_id": 23811903,
+      "_manifest_note": "Download with: tools/fetch-game-build.sh tested"
     },
-    "engine": "Godot 4.5.1 mono (bytecode 4.5.0-stable ebc36a7)",
+    "engine": "Godot 4.5.1 mono",
     "plugins": {
       "fmod_engine": "2.03.06",
       "fmod_gdextension": "6.1.0-4.5.0",
       "sentry_godot": "1.5.0",
       "spine_runtimes": "4.2 (spine-runtimes submodule)"
     },
-    "tested_on": "H700 / muOS 2601 (glibc 2.44), 2026-11-11",
+    "tested_on": "H700 / muOS 2601 (glibc 2.44), 2026-11-11. Boots, plays, audio works; performance on par with the previous build (PERF_NOTES.md).",
     "port_build_md5": {
       "sts2": "416f11c8badc13b81cbadb4c81530c14",
-      "sts2.pck": "d09ef81413af1984f382d758c6aed807",
-      "mods/slaylowres/slaylowres.pck": "09fdf6716a43a73597547ce9a8891377",
+      "sts2.pck": "cb03e06cccc238fb9f3e8ce3a9d68fe9",
+      "mods/slaylowres/slaylowres.pck": "1d989601c8f5dbca03618765578bdfdf",
       "libGodotFmod.linux.template_release.arm64.so": "daa922b1e83a36d01215542eea7ec092"
+    },
+    "local_copies": {
+      "recovered_project": "sts2-recover/",
+      "port": "slaythespire2/slaythespire2/",
+      "snapshot": "snapshots/v0.107.1-arm64 (archived from sts2-recover-latest/ + export/latest-arm64/; restores to those paths)"
     }
   },
   "known_newer": {
-    "_note": "Later builds of depot 2868843 from SteamDB. None tried yet.",
-    "builds": [
-      {
-        "manifest_id": "5787074490845918032",
-        "published": "2026-05-29T21:30:20Z",
-        "version": "unknown"
+    "_note": "Builds of depot 2868843 newer than 'tested' (from SteamDB). Empty = tested is the latest we know of.",
+    "builds": []
+  },
+  "previous": [
+    {
+      "label": "Early Access main branch, recovered 2026-05-02",
+      "recovered_on": "2026-05-02",
+      "newest_bundled_patch_notes": "2026-04-15",
+      "steam": {
+        "app_id": 2868840,
+        "depot_id": 2868843,
+        "manifest_id": "5980382945911826237",
+        "_manifest_note": "From SteamDB depot 2868843 history: the manifest live on 2026-05-02 (the recovery date). Download it with: tools/fetch-game-build.sh tested",
+        "manifest_published": "2026-04-17T00:53:14Z"
       },
-      {
-        "manifest_id": "7881097836989620034",
-        "published": "2026-06-19T00:33:55Z",
-        "version": "v0.107.1",
-        "steam_build_id": 23811903,
-        "note": "what the local Steam install has (release_info.json dated 2026-06-18)"
+      "engine": "Godot 4.5.1 mono (bytecode 4.5.0-stable ebc36a7)",
+      "plugins": {
+        "fmod_engine": "2.03.06",
+        "fmod_gdextension": "6.1.0-4.5.0",
+        "sentry_godot": "1.5.0",
+        "spine_runtimes": "4.2 (spine-runtimes submodule)"
+      },
+      "tested_on": "H700 / muOS 2601 (glibc 2.44), 2026-11-11",
+      "port_build_md5": {
+        "sts2": "416f11c8badc13b81cbadb4c81530c14",
+        "sts2.pck": "d09ef81413af1984f382d758c6aed807",
+        "mods/slaylowres/slaylowres.pck": "09fdf6716a43a73597547ce9a8891377",
+        "libGodotFmod.linux.template_release.arm64.so": "daa922b1e83a36d01215542eea7ec092"
+      },
+      "local_copies": {
+        "recovered_project": "sts2-recover-2026-05-02/",
+        "port": "export/tested-2026-05-02-arm64/",
+        "snapshot": "snapshots/tested-2026-05-02-build"
       }
-    ]
-  }
+    }
+  ],
+  "known_skipped": [
+    {
+      "manifest_id": "5787074490845918032",
+      "published": "2026-05-29T21:30:20Z",
+      "version": "unknown",
+      "note": "between the two tested builds, never tried"
+    }
+  ]
 }

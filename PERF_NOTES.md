@@ -7,6 +7,8 @@ Device: H700 (4x Cortex-A53, Mali-G31 MP2), muOS, **973 MB RAM, no swap**. Displ
 
 ## Current state
 
+**Game build:** v0.107.1 since 2026-11-11 (was the 2026-05-02 recovery). See `game-version.json`.
+
 **On the device:** game installed at `/mnt/sdcard/ports/slaythespire2`, launcher in `/mnt/sdcard/ROMS/PORTS`.
 Active mods: `slayperf` + `slaylowres` (scale 0.5). `slaytiny` (diagnostic) is parked in `mods-disabled/`.
 `perf.env` (next run, `gov-perf2`): `SLAYPERF_SPINE_HZ=15 SLAY_DOTNET_TWEAKS=1 SLAY_GOVERNOR=performance`.
@@ -23,13 +25,25 @@ per install (shader compile, then cached). Select+Start quit is confirmed on dev
    and (b) instance VFX scenes off-screen once so their shaders compile during loading, not mid-fight.
 3. `particles=half` and `preload_vfx=false` haven't been measured on device yet. On PC,
    `preload_vfx=false` cut the "Common" preload from 6.8 s to 0.5 s.
-4. Updating to a current game build means a full re-port (repack.sh) **and** rebuilding the
-   low-res PCK (see the version caveat below). The tested build is pinned in `game-version.json`.
-   Snapshot first (`tools/snapshot.sh save`) so it can be restored.
+4. Moving to a newer game build: follow README "Game versions" (side-by-side build, its own low-res PCK,
+   snapshot, back up the device's `conf/`). Done once for v0.107.1. It needed no code fixes.
 
 **Tooling notes for picking this back up:** `./deploy.sh pull` then `tools/perfreport.py` on
 `device-logs/**/*.csv`. muOS SSH is `root`/`root`, and device paths are as above. For live viewing,
 `tail -F` the newest CSV in `mods/slayperf/logs/` over SSH.
+
+## 2026-11-11: moved to game v0.107.1
+
+- Recovered v0.107.1 (Steam manifest 7881097836989620034) side by side (`RECOVER_DIR`). The recovery,
+  import and C# compile all worked first try, with no decompile fixes needed. Same engine (Godot 4.5.1)
+  and FMOD (2.03.06).
+- SlayPerf: the old DLL loads unchanged and both Harmony patches still apply. The source also compiles
+  against v0.107.1. Its own low-res PCK: 3,485 textures (53 more than before), 2,573 rewritten, 441 MB.
+- Device run (`v0.107.1`, settings menu: low-res on, Spine 15 Hz, particles off, GC tweak on, CPU
+  governor normal): 30 FPS median, worst stall 9.7 s, min available RAM 312 MB, main menu 32.6 s. On par
+  with the old build (`gov-perf`: 29.8 s, 278 MB), though not a controlled comparison (different
+  governor/particle settings). User: "works well". Saves carried over.
+- The device's pre-update saves are kept on the device in `conf-backup-pre-v0.107.1-20261111-1033/`.
 
 ## 2026-11-11: performance governor (gov-perf)
 

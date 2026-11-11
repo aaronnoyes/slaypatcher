@@ -177,8 +177,11 @@ The x86_64 export runs the same mods. Put them in `export/Linux-x86_64/mods/`, e
 
 ## Game versions
 The port is built from one specific game build, recorded in [`game-version.json`](game-version.json)
-together with checksums of the built port. Currently that's the Early Access main build recovered on
-2026-05-02 (newest bundled patch notes: 2026-04-15). Newer builds (e.g. v0.107.1) haven't been tried.
+together with checksums of the built port. Currently that's **v0.107.1** (Steam manifest
+`7881097836989620034`, 2026-06-19), tested on device 2026-11-11. The earlier tested build (Early Access
+main, recovered 2026-05-02, manifest `5980382945911826237`) is listed under `previous`. Its recovered
+project and port are kept locally in `sts2-recover-2026-05-02/` and `export/tested-2026-05-02-arm64/`,
+and in `snapshots/tested-2026-05-02-build`.
 
 - `repack.sh` prints the input PCK's version (from Steam's `release_info.json`). After a recovery it
   records it in `sts2-recover/.slaypatcher-source-release.json`, and it warns when you build from a
@@ -200,7 +203,10 @@ together with checksums of the built port. Currently that's the Early Access mai
   e.g. `export/latest-arm64`, copy in the tracked port files (`conf/`, `launcher/`, `launcher.gptk`) and
   `mods/slayperf`, build its own low-res PCK (`GAMEDIR=export/latest-arm64 tools/make-lowres.sh`), then:
   `LOCAL_GAMEDIR=export/latest-arm64 ./deploy.sh game menu lowres`. Snapshot it with
-  `RECOVER_DIR=... LOCAL_GAMEDIR=... tools/snapshot.sh save <name>` (restore uses the recorded paths).
+  `RECOVER_DIR=... LOCAL_GAMEDIR=... tools/snapshot.sh save <name>`. A snapshot restores to the
+  paths it was saved from (see its `paths.txt`). Once a new build is tested, swap it into the default
+  folders (`sts2-recover/`, `slaythespire2/slaythespire2/`) and keep the old ones under dated names,
+  so plain `deploy.sh` commands can't push mismatched files.
   Back up the device's `conf/` first: a newer game may migrate saves.
 - When moving to a new build, also rebuild the low-res PCK and re-run the FMOD build, re-test, then
   update `game-version.json`.
