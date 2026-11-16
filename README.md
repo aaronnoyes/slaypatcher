@@ -186,14 +186,15 @@ and in `snapshots/tested-2026-05-02-build`.
 - `repack.sh` prints the input PCK's version (from Steam's `release_info.json`). After a recovery it
   records it in `sts2-recover/.slaypatcher-source-release.json`, and it warns when you build from a
   PCK whose version differs from the recovered project.
-- **Before moving to a new game build, save a snapshot.** `tools/snapshot.sh save` archives the
-  recovered project and the built port (~5 GB compressed) into `snapshots/` (local, gitignored).
-  `tools/snapshot.sh restore <name>` brings back exactly what was tested, without needing Steam.
+- **Snapshots (optional):** `tools/snapshot.sh save` archives the recovered project and the built port
+  (~3.5 GB compressed) into `snapshots/` (local, gitignored), and `tools/snapshot.sh restore <name>`
+  brings them back without Steam. Re-downloading the pinned manifest works reliably, so they're not
+  needed by default.
 - **Old builds from Steam:** `tools/fetch-game-build.sh <manifest-id>` downloads a specific build
   of depot 2868843 with your own account (DepotDownloader, or prints the `download_depot` command
   for Steam's built-in console). Manifest IDs per date are listed at
-  https://steamdb.info/depot/2868843/manifests/. The tested build is manifest `5980382945911826237`
-  (published 2026-04-17), so `tools/fetch-game-build.sh tested` downloads it.
+  https://steamdb.info/depot/2868843/manifests/. The tested build is manifest `7881097836989620034`
+  (published 2026-06-19), so `tools/fetch-game-build.sh tested` downloads it.
 - **Trying a new build side by side:** set `RECOVER_DIR` to recover it into a separate project and
   export somewhere else, leaving the tested build untouched:
   ```

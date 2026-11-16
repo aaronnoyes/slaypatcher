@@ -32,9 +32,8 @@
       "libGodotFmod.linux.template_release.arm64.so": "daa922b1e83a36d01215542eea7ec092"
     },
     "local_copies": {
-      "recovered_project": "sts2-recover/",
-      "port": "slaythespire2/slaythespire2/",
-      "snapshot": "snapshots/v0.107.1-arm64 (archived from sts2-recover-latest/ + export/latest-arm64/; restores to those paths)"
+      "recovered_project": "not kept (removed 2026-11-16); rebuild: tools/fetch-game-build.sh tested && ./repack.sh",
+      "port": "slaythespire2/slaythespire2/"
     }
   },
   "known_newer": {
@@ -50,7 +49,7 @@
         "app_id": 2868840,
         "depot_id": 2868843,
         "manifest_id": "5980382945911826237",
-        "_manifest_note": "From SteamDB depot 2868843 history: the manifest live on 2026-05-02 (the recovery date). Download it with: tools/fetch-game-build.sh tested",
+        "_manifest_note": "From SteamDB depot 2868843 history: the manifest live on 2026-05-02 (the recovery date). Download it with: tools/fetch-game-build.sh 5980382945911826237",
         "manifest_published": "2026-04-17T00:53:14Z"
       },
       "engine": "Godot 4.5.1 mono (bytecode 4.5.0-stable ebc36a7)",
@@ -68,9 +67,7 @@
         "libGodotFmod.linux.template_release.arm64.so": "daa922b1e83a36d01215542eea7ec092"
       },
       "local_copies": {
-        "recovered_project": "sts2-recover-2026-05-02/",
-        "port": "export/tested-2026-05-02-arm64/",
-        "snapshot": "snapshots/tested-2026-05-02-build"
+        "recovered_project": "not kept (removed 2026-11-16); fetch manifest 5980382945911826237 to rebuild"
       }
     }
   ],
